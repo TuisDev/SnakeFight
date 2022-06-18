@@ -5,6 +5,8 @@ Wes and Jacob would like to ensure that everyone seeing this game
 knows that Mclean has done 90% of all the work on this project /s
 '''
 
+# Test update
+
 import sys
 import pygame as pg
 from pygame.locals import *
