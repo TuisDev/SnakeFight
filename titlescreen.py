@@ -8,18 +8,7 @@ import pygame as pg
 from pygame.locals import *
 import random
 import os
-
-class Color:
-    red = (255, 0, 0)
-    green = (0, 255, 0)
-    blue = (0, 0, 255)
-    yellow = (255, 255, 0)
-    grey = (15, 15, 15)
-    cyan = (0, 255, 255)
-    white = (255, 255, 255)
-    purple = (100, 0, 100)
-    black = (0, 0, 0)
-    orange = (255, 127, 0)
+from game import Color
 
 
 

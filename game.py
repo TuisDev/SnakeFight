@@ -24,10 +24,20 @@ class Color:
     purple = (100, 0, 100)
     black = (0, 0, 0)
     orange = (255, 127, 0)
-    
+
+
+class player_color:
+    red = (255, 0, 0)
+    orange = (255, 128, 0)
+    yellow = (255, 255, 0)
+    green = (0, 255, 0)
+    cyan = (0, 255, 255)
+    blue = (0, 0, 255)
+    purple = (255, 0, 255)
+
+
     translate = {
-        red: 'red', orange: 'orange', yellow: 'yellow', green: 'green', blue: 'blue',
-        cyan: 'cyan', purple: 'purple', white: 'white', black: 'black', grey: 'grey', 
+        red: 'red', orange: 'orange', yellow: 'yellow', green: 'green', cyan: 'cyan', blue: 'blue', purple: 'purple'
     }
 
 class Snake:
@@ -58,7 +68,7 @@ def winscreen(input_color):
     font = pg.font.Font('freesansbold.ttf', 32)
     done = False
     
-    text = font.render(f' {Color.translate[input_color].upper()} WINS! ', True, input_color, Color.white)
+    text = font.render(f' {player_color.translate[input_color].upper()} WINS! ', True, input_color, Color.white)
     text_size = text.get_rect().size
     
     replay = font.render(' Play Again? ', True, input_color, Color.white)
@@ -91,10 +101,10 @@ def winscreen(input_color):
         
         
 def main():
-    green_snake = Snake('south', (pg.K_w, pg.K_d, pg.K_s, pg.K_a), Color.green, 20, (80, 80))
-    yellow_snake = Snake('south', (pg.K_t, pg.K_h, pg.K_g, pg.K_f), Color.yellow, 20, (20, 20))
-    red_snake = Snake('south', (pg.K_i, pg.K_l, pg.K_k, pg.K_j), Color.red, 20, (40, 40))
-    blue_snake = Snake('south', (pg.K_UP, pg.K_RIGHT, pg.K_DOWN, pg.K_LEFT), Color.blue, 20, (60, 60))
+    green_snake = Snake('south', (pg.K_w, pg.K_d, pg.K_s, pg.K_a), player_color.green, 20, (80, 80))
+    yellow_snake = Snake('south', (pg.K_t, pg.K_h, pg.K_g, pg.K_f), player_color.yellow, 20, (20, 20))
+    red_snake = Snake('south', (pg.K_i, pg.K_l, pg.K_k, pg.K_j), player_color.red, 20, (40, 40))
+    blue_snake = Snake('south', (pg.K_UP, pg.K_RIGHT, pg.K_DOWN, pg.K_LEFT), player_color.blue, 20, (60, 60))
     
     snakes = [green_snake, blue_snake]
     
