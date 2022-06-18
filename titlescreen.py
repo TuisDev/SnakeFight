@@ -54,8 +54,10 @@ while not done:
                 done = True
             if event.type == pg.MOUSEBUTTONDOWN:
                 if width / 2 - join_size[0] - 7 <= pg.mouse.get_pos()[0] <= width / 2 - 7  and 365 <= pg.mouse.get_pos()[1] <= 365 + join_size[1]:
+                    pg.display.quit()
                     os.system('python game.py')
                 elif width / 2 + host_size[0] - 105 <= pg.mouse.get_pos()[0] <= width / 2 + 105 and 365 <= pg.mouse.get_pos()[1] <= 365 + host_size[1]:
+                    pg.display.quit()
                     os.system('python test.py')
                
     pg.display.flip()

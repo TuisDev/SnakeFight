@@ -11,7 +11,7 @@ import pygame as pg
 from pygame.locals import *
 import random
 import os
-    
+
     
 class Color:
     red = (255, 0, 0)
@@ -82,7 +82,7 @@ def winscreen(input_color):
                 done = True
             if event.type == pg.MOUSEBUTTONDOWN:
                 if width / 2 - replay_size[0] / 2 <= pg.mouse.get_pos()[0] <= width / 2 + replay_size[0] / 2 and 375 <= pg.mouse.get_pos()[1] <= 375 + replay_size[1]:
-                    os.system('python game.py')
+                    return True
                 elif 205.5 <= pg.mouse.get_pos()[0] <= 294.5 and 425 <= pg.mouse.get_pos()[1] <= 425 + quit_size[1]:
                     os.system('python titlescreen.py')
             
@@ -100,7 +100,7 @@ def main():
     
     size = 500, 500
     width, height = size
-    screen = pg.display.set_mode((size))
+    screen = pg.display.set_mode((size)) 
     rand1 = random.randint(100, 400), random.randint(100, 400)
     rand2 = random.randint(100, 400), random.randint(100, 400)
     clock = pg.time.Clock()
@@ -237,6 +237,10 @@ def main():
         if tie == []:
             screen.fill(Color.grey)
 
+            for i in range(625):
+                color_alternate = {0: (174, 247, 119), 1:(134, 189, 92)}
+                pg.draw.rect(screen, color_alternate[(i % 25 + int(i / 25)) % 2], ((i % 25) * 20, int(i / 25) * 20, 20, 20))
+
             for snake in snakes:
                 if snake.attack:
                     print(snake.animation_tick)
@@ -251,12 +255,6 @@ def main():
                         snake.offset = snake.size, 0
                     screen.blit(pg.transform.rotate(fang_bite[snake.animation_tick], snake.degree), (snake.head.x - snake.offset[0], snake.head.y - snake.offset[1]))
                     snake.animation_tick += 1
-            
-            
-            for i in range(625):
-                color_alternate = {0: (174, 247, 119), 1:(134, 189, 92)}
-                pg.draw.rect(screen, color_alternate[(i % 25 + int(i / 25)) % 2], ((i % 25) * 20, int(i / 25) * 20, 20, 20))
-            
             
             for rect in husk:
                 pg.draw.rect(screen, Color.purple, Rect(rect))    
@@ -283,6 +281,6 @@ def main():
         
 if __name__ == '__main__':
     pg.init()
-    winscreen(main())
+    while winscreen(main()): pass
     pg.quit()
     sys.exit()
