@@ -24,6 +24,8 @@ class Color:
     purple = (100, 0, 100)
     black = (0, 0, 0)
     orange = (255, 127, 0)
+    grey_blue = (20, 20, 100)
+    grey_green = (20, 100, 20)
 
 
 class player_color:
