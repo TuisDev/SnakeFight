@@ -29,14 +29,14 @@ class Color:
 
 
 class player_color:
-    red = (255, 0, 0)
-    orange = (255, 128, 0)
-    yellow = (255, 255, 0)
-    green = (0, 255, 0)
-    cyan = (0, 255, 255)
     blue = (0, 0, 255)
+    green = (0, 255, 0)
+    red = (255, 0, 0)
+    yellow = (255, 255, 0)
     purple = (255, 0, 255)
-
+    orange = (255, 128, 0)
+    cyan = (0, 255, 255)
+    
 
     translate = {
         red: 'red', orange: 'orange', yellow: 'yellow', green: 'green', cyan: 'cyan', blue: 'blue', purple: 'purple'
@@ -100,7 +100,9 @@ def winscreen(input_color):
             
         pg.display.flip()
         clock.tick(100)
-        
+
+    pg.quit()
+    sys.exit() 
         
 def main():
     green_snake = Snake('south', (pg.K_w, pg.K_d, pg.K_s, pg.K_a), player_color.green, 20, (80, 80))
@@ -290,7 +292,10 @@ def main():
         
         pg.display.flip()
         clock.tick(80)
-        
+
+    pg.quit()
+    sys.exit()
+
 if __name__ == '__main__':
     pg.init()
     while winscreen(main()): pass
