@@ -16,6 +16,7 @@ ipv4_port = 65432
 start_time = time.time()
 received = [None]
 thread_pool = [0]
+data_buffer = b''
 
 def check_group(udp_sock):
     try:
@@ -47,7 +48,7 @@ def server_finder():
 
     list_box = Rect(70, 30, 360, 400)
     addr_lst = list()
-    socket.setdefaulttimeout(1)
+    socket.setdefaulttimeout(3)
     with socket.socket(socket.AF_INET6, socket.SOCK_DGRAM) as udp_sock:
 
         while not done:
@@ -123,10 +124,24 @@ if __name__ == '__main__':
         while True:
             s.sendall(b'Hello')
             data = s.recv(4096)
-            if data >= 1:
-                hdr = data[:1]
-                print(struct.unpack('>B', hdr))
+            if data:
+                data_buffer += data
+            if len(data_buffer) >= 1:
+                print('Trop Petit')
+                hdr = data_buffer[:1]
+                data_len = struct.unpack('>B', hdr)[0]
+            if len(data_buffer) > data_len:
+                data_buffer = data_buffer[1:]
+                snake_color_lst = []
+                for i in range(int(data_len / 3)):
+                    color = []
+                    for i in range(3):
+                        color.append(struct.unpack('>B', data_buffer[:1])[0])
+                        data_buffer = data_buffer[1:]
+                    snake_color_lst.append(tuple(color))
+
+                
 
 
-            time.sleep(0.1)
+            time.sleep(0.05)
 # cd onedrive/documents/coding/python

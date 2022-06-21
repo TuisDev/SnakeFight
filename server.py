@@ -38,14 +38,16 @@ def tcp_server(conn):
         # snake_color_list[0].append(list(player_color.translate)[len(snake_color_list[0])])
     while True:
         hdr = struct.pack('>B', len(snake_color_lst) * 3)
-        conn.sendall(hdr)
+        conn.send(hdr)
+        print(hdr)
         for rgb in snake_color_lst:
             for color in rgb[0]:
-                print(bin(color))
-                conn.send(str(bin(color)).encode())
+                color_bin = struct.pack('>B', color)
+                print(f'color_bin = {color_bin}')
+                conn.send(color_bin)
         if len(data) == 7:
             break
-    time.sleep(0.1)
+        time.sleep(0.1)
     conn.close()
 
 
