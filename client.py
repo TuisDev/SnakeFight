@@ -121,24 +121,26 @@ if __name__ == '__main__':
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         print((ipv4_host, ipv4_port))
         s.connect((ipv4_host, ipv4_port))
+        snake_color_lst = []
         while True:
             s.sendall(b'Hello')
             data = s.recv(4096)
             if data:
                 data_buffer += data
-            if len(data_buffer) >= 1:
+            if len(data_buffer) >= 2:
                 print('Trop Petit')
-                hdr = data_buffer[:1]
-                data_len = struct.unpack('>B', hdr)[0]
-            if len(data_buffer) > data_len:
-                data_buffer = data_buffer[1:]
+                hdr = struct.unpack('>H', data_buffer[:2])[0]
+                body_len = hdr >> 8 & 0b1111
+            if len(data_buffer) >= body_len + 2:
+                data_buffer = data_buffer[2:]
                 snake_color_lst = []
-                for i in range(int(data_len / 3)):
+                for i in range(int(body_len / 3)):
                     color = []
                     for i in range(3):
                         color.append(struct.unpack('>B', data_buffer[:1])[0])
                         data_buffer = data_buffer[1:]
                     snake_color_lst.append(tuple(color))
+            print(snake_color_lst)
 
                 
 

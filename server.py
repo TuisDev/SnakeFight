@@ -13,6 +13,7 @@ ipv4_host = socket.gethostbyname(computer_name)
 ipv4_port = 65432
 start_time = time.time()
 snake_color_lst = [[player_color.blue]]
+ready_snakes = [0b00000000]
 
 def look_for_clients():
     with socket.socket(socket.AF_INET6, socket.SOCK_DGRAM, socket.IPPROTO_UDP) as udp_sock:
@@ -29,19 +30,19 @@ def look_for_clients():
                 udp_sock.sendto(f'{computer_name}, {ipv4_host}'.encode(), addr)
                 print(f'send data to {addr}')
 
-def tcp_server(conn):
+def tcp_server(conn, snake_num):
     with data_lock:
         data = conn.recv(1024)
         print(f'scl = {snake_color_lst}')
-        # print(f'list of pc translate = {list(player_color.translate)}')
-        # print(f'length of scl = {len(snake_color_lst)}')
-        # snake_color_list[0].append(list(player_color.translate)[len(snake_color_list[0])])
+        print(snake_color_lst)
+        snake_color_lst[0].append(list(player_color.translate)[len(snake_color_lst[0])])
     while True:
-        hdr = struct.pack('>B', len(snake_color_lst) * 3)
-        conn.send(hdr)
+        body_len = len(snake_color_lst[0]) * 3
+        hdr = struct.pack('>H', (snake_num << 4 | body_len) << 8 | ready_snakes[0])
+        conn.sendall(hdr)
         print(hdr)
-        for rgb in snake_color_lst:
-            for color in rgb[0]:
+        for rgb in snake_color_lst[0]:
+            for color in rgb:
                 color_bin = struct.pack('>B', color)
                 print(f'color_bin = {color_bin}')
                 conn.send(color_bin)
@@ -57,16 +58,17 @@ if __name__ == '__main__':
     
 
     data_lock = threading.Lock()
-
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         try:
             print((ipv4_host, ipv4_port))
             s.bind((ipv4_host, ipv4_port))
             s.listen(7)
+            snake_num = 0
             while True:
                 conn, addr = s.accept()
+                snake_num += 1
                 print(f'Connected at {addr}')
-                threading.Thread(target=tcp_server, args=(conn,), daemon=True).start()
+                threading.Thread(target=tcp_server, args=(conn, snake_num), daemon=True).start()
                 if start_time - time.time() > 15:
                     break
         except KeyboardInterrupt:
