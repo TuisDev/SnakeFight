@@ -10,8 +10,6 @@ import random
 import os
 from game import Color
 
-
-
 pg.init()
 size = 500, 500
 width, height = size
@@ -47,7 +45,7 @@ while not done:
                     os.system('python game.py')
                 elif width / 2 + host_size[0] - 105 <= pg.mouse.get_pos()[0] <= width / 2 + 105 and 365 <= pg.mouse.get_pos()[1] <= 365 + host_size[1]:
                     pg.display.quit()
-                    os.system('python test.py')
+                    os.system('python server.py')
                
     pg.display.flip()
     clock.tick(100)

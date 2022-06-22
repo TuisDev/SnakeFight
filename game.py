@@ -5,14 +5,12 @@ Wes and Jacob would like to ensure that everyone seeing this game
 knows that Mclean has done 90% of all the work on this project /s
 '''
 
-
 import sys
 import pygame as pg
 from pygame.locals import *
 import random
 import os
-
-    
+  
 class Color:
     red = (255, 0, 0)
     green = (0, 255, 0)
@@ -27,7 +25,6 @@ class Color:
     grey_blue = (20, 20, 100)
     grey_green = (20, 100, 20)
 
-
 class player_color:
     blue = (0, 0, 255)
     green = (0, 255, 0)
@@ -37,7 +34,6 @@ class player_color:
     orange = (255, 128, 0)
     cyan = (0, 255, 255)
     
-
     translate = {
         red: 'red', orange: 'orange', yellow: 'yellow', green: 'green', cyan: 'cyan', blue: 'blue', purple: 'purple'
     }
