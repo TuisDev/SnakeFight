@@ -17,6 +17,7 @@ start_time = time.time()
 received = [None]
 thread_pool = [0]
 data_buffer = b''
+is_ready = False
 socket.setdefaulttimeout(5)
 
 def check_group(udp_sock):
@@ -165,11 +166,14 @@ if __name__ == '__main__':
 
             pg.draw.rect(screen, Color.white, rect, 1)
             snk = Rect(width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2, 250, 25, 140)
+
+            ready_snake_num = 0
            
             for i in range(snk_num):
                 if (ready_snakes << i & 0xff) >> 7 == 1:
                     snk.y = 175
                     snk.size = (snk.size[0], 215)
+                    ready_snake_num += 1
                 else:
                     snk.y = 250
                     snk.size = (snk.size[0], 140)
@@ -184,6 +188,13 @@ if __name__ == '__main__':
                 if event.type == pg.MOUSEBUTTONDOWN:
                     if width / 2 - ready_size[0] <= pg.mouse.get_pos()[0] <= width / 2 and 400 <= pg.mouse.get_pos()[1] <= 400 + ready_size[1]:
                         ready = True
+            if ready_snake_num == snk_num and is_ready:
+                    print('k')
+            if ready_snake_num == snk_num:
+                is_ready = True
+            else:
+                is_ready = False
+
             if ready:
                 s.sendall(b'f')
             else:
