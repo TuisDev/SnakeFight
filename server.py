@@ -50,6 +50,11 @@ def tcp_server(conn, snake_num):
                 conn.send(color_bin)
         if len(data) == 7:
             break
+        print('sugma')
+        data = conn.recv(1024)
+        print('ballz')
+        if data[:1] == b'f':
+            ready_snakes[0] = ready_snakes[0] | 0b10000000 >> snake_num
         time.sleep(0.1)
     conn.close()
 
@@ -85,10 +90,12 @@ if __name__ == '__main__':
             lobby = font.render(' Lobby ', True, Color.green, Color.blue)
             lobby_size = lobby.get_rect().size
 
-            ready = font.render(' Ready ', True, Color.blue, Color.green)
+            ready_txt = font.render(' Ready ', True, Color.blue, Color.green)
             ready_size = lobby.get_rect().size
 
             rect = Rect(width / 2 - 400 / 2, 90, 400, 300)
+
+
 
 
 
@@ -96,7 +103,7 @@ if __name__ == '__main__':
                 screen.fill(Color.black)
                 snk_num = len(snake_color_lst[0])
                 screen.blit(lobby, (width / 2 - lobby_size[0] / 2, 10))
-                screen.blit(ready, (width / 2 - ready_size[0] / 2, 400))
+                screen.blit(ready_txt, (width / 2 - ready_size[0] / 2, 400))
 
                 pg.draw.rect(screen, Color.white, rect, 1)
                 snk = Rect(width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2, 250, 25, 140)
@@ -104,7 +111,15 @@ if __name__ == '__main__':
                 x2pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25 ) / 2 + 25)
 
                 for i in range(snk_num):
+                    if (ready_snakes[0] << i & 0xff) >> 7 == 1:
+                        snk.y = 175
+                        snk.size = (snk.size[0], 215)
+                    else:
+                        snk.y = 250
+                        snk.size = (snk.size[0], 140)
+                        
                     pg.draw.rect(screen, snake_color_lst[0][i], snk)
+                    
                     if i > 0:
                         pg.draw.line(screen, Color.red, (x1pos, 50), (x2pos, 80), 5)
                         pg.draw.line(screen, Color.red, (x1pos, 80), (x2pos, 50), 5)
@@ -115,6 +130,10 @@ if __name__ == '__main__':
                 for event in pg.event.get():
                     if event.type == pg.QUIT:
                         done = True
+                    if event.type == pg.MOUSEBUTTONDOWN:
+                        if width / 2 - ready_size[0] <= pg.mouse.get_pos()[0] <= width / 2 and 400 <= pg.mouse.get_pos()[1] <= 400 + ready_size[1]:
+                            ready_snakes[0] = ready_snakes[0] | 0b10000000
+
                 
                 pg.display.flip()
                 clock.tick(100)
