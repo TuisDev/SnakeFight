@@ -122,13 +122,27 @@ if __name__ == '__main__':
         print((ipv4_host, ipv4_port))
         s.connect((ipv4_host, ipv4_port))
         snake_color_lst = []
-        while True:
-            s.sendall(b'Hello')
+        pg.init()
+        done = False
+        size = 500, 500
+        width, height = size
+        screen = pg.display.set_mode((size))
+        clock = pg.time.Clock()
+        font = pg.font.Font('freesansbold.ttf', 32)
+
+        lobby = font.render(' Lobby ', True, Color.green, Color.blue)
+        lobby_size = lobby.get_rect().size
+
+        ready = font.render(' Ready ', True, Color.blue, Color.green)
+        ready_size = lobby.get_rect().size
+
+        rect = Rect(width / 2 - 400 / 2, 90, 400, 300)
+        s.sendall(b'Hello')
+        while not done:
             data = s.recv(4096)
             if data:
                 data_buffer += data
             if len(data_buffer) >= 2:
-                print('Trop Petit')
                 hdr = struct.unpack('>H', data_buffer[:2])[0]
                 body_len = hdr >> 8 & 0b1111
             if len(data_buffer) >= body_len + 2:
@@ -140,10 +154,35 @@ if __name__ == '__main__':
                         color.append(struct.unpack('>B', data_buffer[:1])[0])
                         data_buffer = data_buffer[1:]
                     snake_color_lst.append(tuple(color))
-            print(snake_color_lst)
 
+            
+
+
+            screen.fill(Color.black)
+            snk_num = len(snake_color_lst)
+            screen.blit(lobby, (width / 2 - lobby_size[0] / 2, 10))
+            screen.blit(ready, (width / 2 - ready_size[0] / 2, 400))
+
+            pg.draw.rect(screen, Color.white, rect, 1)
+            snk = Rect(width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2, 250, 25, 140)
+            
+            for i in range(snk_num):
+                pg.draw.rect(screen, snake_color_lst[i], snk)
+
+                snk.x += 50
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    done = True
+            
+            pg.display.flip()
+            clock.tick(100)
+            
+            
+        pg.quit()
+        sys.exit()
+    
                 
 
 
-            time.sleep(0.05)
+
 # cd onedrive/documents/coding/python

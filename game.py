@@ -35,7 +35,7 @@ class player_color:
     cyan = (0, 255, 255)
     
     translate = {
-        red: 'red', orange: 'orange', yellow: 'yellow', green: 'green', cyan: 'cyan', blue: 'blue', purple: 'purple'
+        blue: 'blue', green: 'green', yellow: 'yellow', red: 'red', cyan: 'cyan', orange: 'orange', purple: 'purple'
     }
 
 class Snake:

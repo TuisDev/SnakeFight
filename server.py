@@ -42,6 +42,7 @@ def tcp_server(conn, snake_num):
         hdr = struct.pack('>H', (snake_num << 4 | body_len) << 8 | ready_snakes[0])
         conn.sendall(hdr)
         print(hdr)
+
         for rgb in snake_color_lst[0]:
             for color in rgb:
                 color_bin = struct.pack('>B', color)
@@ -63,8 +64,9 @@ def tcp_wait_for_client(socket):
 
 if __name__ == '__main__':
     threading.Thread(target=look_for_clients, args=(), daemon=True).start()
-    
     data_lock = threading.Lock()
+    
+    
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         try:
             print(f'THIS {(ipv4_host, ipv4_port)}')
@@ -88,13 +90,11 @@ if __name__ == '__main__':
 
             rect = Rect(width / 2 - 400 / 2, 90, 400, 300)
 
-            snk = Rect(width / 2 - 25 / 2, 250, 25, 140)
-            snk_num = 8
-            
-            x1pos = width / 2 - 25 / 2
-            x2pos = width / 2 + 25 / 2
+
 
             while not done:
+                screen.fill(Color.black)
+                snk_num = len(snake_color_lst[0])
                 screen.blit(lobby, (width / 2 - lobby_size[0] / 2, 10))
                 screen.blit(ready, (width / 2 - ready_size[0] / 2, 400))
 
@@ -104,9 +104,10 @@ if __name__ == '__main__':
                 x2pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25 ) / 2 + 25)
 
                 for i in range(snk_num):
-                    pg.draw.rect(screen, Color.blue, snk)
-                    pg.draw.line(screen, Color.red, (x1pos, 50), (x2pos, 80), 5)
-                    pg.draw.line(screen, Color.red, (x1pos, 80), (x2pos, 50), 5)
+                    pg.draw.rect(screen, snake_color_lst[0][i], snk)
+                    if i > 0:
+                        pg.draw.line(screen, Color.red, (x1pos, 50), (x2pos, 80), 5)
+                        pg.draw.line(screen, Color.red, (x1pos, 80), (x2pos, 50), 5)
 
                     snk.x += 50
                     x1pos += 50
@@ -117,6 +118,7 @@ if __name__ == '__main__':
                 
                 pg.display.flip()
                 clock.tick(100)
+                
                 
             pg.quit()
             sys.exit()
