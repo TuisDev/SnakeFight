@@ -392,7 +392,7 @@ def main():
 
 
         pg.display.flip()
-        clock.tick(10)
+        clock.tick(40)
 
     pg.quit()
     sys.exit()
