@@ -111,17 +111,18 @@ def main():
     blue_snake = Snake('south', (pg.K_UP, pg.K_RIGHT, pg.K_DOWN, pg.K_LEFT), player_color.blue, 20, (60, 60))
     
     snakes = [green_snake, blue_snake]
+
     
-    size = 500, 500
-    width, height = size
-    screen = pg.display.set_mode((size)) 
+    total_width, total_height = 700, 700
+    total_screen = pg.Surface((700, 700))
+    width, height = 500, 500
+    screen = pg.Surface((500, 500))
     rand1 = random.randint(100, 400), random.randint(100, 400)
     rand2 = random.randint(100, 400), random.randint(100, 400)
     clock = pg.time.Clock()
     done = False
     tie = []
     husk = list()
-    turn_delay = 12
     brick_lst = [(160, 320), (160, 300), (160, 300), (160, 280), (160, 280), (160, 260), (160, 240), (180, 240), (200, 240), (220, 240), (240, 240), (240, 260), (240, 280), (240, 300), (240, 320), (180, 320), (220, 320)]
     brick_rect_lst = [Rect(160, 320, 20, 20), Rect(160, 300, 20, 20), Rect(160, 300, 20, 20), Rect(160, 280, 20, 20), Rect(160, 280, 20, 20), Rect(160, 260, 20, 20), Rect(160, 240, 20, 20), Rect(180, 240, 20, 20), Rect(200, 240, 20, 20), Rect(220, 240, 20, 20), Rect(240, 240, 20, 20), Rect(240, 260, 20, 20), Rect(240, 280, 20, 20), Rect(240, 300, 20, 20), Rect(240, 320, 20, 20), Rect(180, 320, 20, 20), Rect(220, 320, 20, 20)]
     brick_img = pg.image.load('brick.png')
@@ -286,10 +287,16 @@ def main():
             return snakes[0].color
 
         
-        # sub = screen.subsurface((snakes[-1].head.x - 40, snakes[3].head.y - 40, 80, 80)).copy()
-        # sub = pg.transform.scale(sub, size)
-        # screen.blit(sub, (0,0))
         
+        total_screen.blit(screen, (50, 50))
+
+        sub = total_screen.subsurface((snakes[-1].head.x - 50, snakes[-1].head.y - 50, 200, 200)).copy()
+        sub = pg.transform.scale(sub, (400, 400))
+        snake_window = pg.display.set_mode((400, 400))
+        pg.display.set_caption(player_color.translate[snakes[-1].color])
+        snake_window.blit(sub, (0, 0))
+
+
         pg.display.flip()
         clock.tick(80)
 

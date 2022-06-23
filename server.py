@@ -5,6 +5,8 @@ import time
 import sys
 import threading
 from game import player_color
+import pygame as pg
+from pygame.locals import *
 
 computer_name = socket.gethostname()
 ipv6_multicast = "ff02::face:1"

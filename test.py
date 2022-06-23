@@ -72,43 +72,16 @@
 #     pg.display.update()
 
 # pg.quit()
-from dataclasses import dataclass
 import struct
 from game import player_color
 import time
 
-snake_color_lst = [[]]
-snake_num = 1
-ready_snakes = 0b1
+encoded = 0b010101011100110001100110.to_bytes(3, 'little')
+for byte in range(3):
+    for bit in range(0, 8, 2):
+        # print(bin((encoded[byte] << bit & 255) >> 6 - bit))
+        print(bit)
+        print(bin((0b10011001 << bit) & 0b11111111))
+        print(bin((0b10011001 << bit & 255) >> 6))
 
-
-snake_color_lst[0].append(list(player_color.translate)[len(snake_color_lst[0])])
-
-while True:
-    data = b''
-    body_len = len(snake_color_lst[0]) * 3
-    hdr = struct.pack('>H', (snake_num << 4 | body_len) << 8 | ready_snakes)
-    data += hdr
-    for rgb in snake_color_lst:
-            for color in rgb[0]:
-                color_bin = struct.pack('>B', color)
-                data += color_bin
-    hdr = struct.unpack('>H', data[:2])[0]
-    print(f'ready_snakes = {hdr & 0b11111111}')
-    print(f'body_len = {hdr >> 8 & 0b1111}')
-    print(f'snake_num = {hdr >> 12}')
-    if input('Would you like to add another snake?(y/n): ') == 'y':
-        snake_color_lst[0].append(list(player_color.translate)[len(snake_color_lst[0])])
-    snake_num = int(input('What snake do you want to be?(int):  ')) - 1
-    if ready_snakes & int(2**snake_num) == 0:
-        if input('Is your snake ready?(y/n):  ') == 'y':
-            ready_snakes = ready_snakes | int(2**snake_num)
-    elif input('Are you still ready?(y/n):  ') == 'n':
-        ready_snakes = ready_snakes ^  int(2**snake_num)
-    
-    if input('Would you like to ban a snake?(y/n):  ') == 'y':
-        snake_color_lst[int(input('Which snake do you want to ban?(int):  ')) - 1] = (0, 0, 0)
-
-
-
-    time.sleep(0.1)
+print(int(bin(0b10101010)[:2:-1], 2))
