@@ -95,8 +95,8 @@
 
   
 # Open file in binary write mode
-with open("map.txt", "rb") as binary_file:
-    
-    # Write bytes to file
-    print(binary_file.readline())
+string = '1234567890'
+print(string[5])
+print(string[:5])
+print(string[6:])
   

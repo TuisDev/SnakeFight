@@ -57,6 +57,7 @@ class Snake:
         self.boost = 1
         self.size = size
         self.face = (0, 0, 0, 0) 
+        self.fangs = (0, 0, 0, 0)
 
 def winscreen(input_color):
     size = 500, 500
@@ -132,6 +133,42 @@ def main():
         pg.image.load('fang3.png'), pg.image.load('fang2.png'), 
     ]
 
+
+    # Makes all snakes a default length of 5
+    for snake in snakes:
+        for i in range(4):
+            if snake.direction == "east":
+                snake.head.x += 2
+                snake.degree = 0
+                snake.face = Rect(snake.head.x + snake.size - 1, snake.head.y + 1, 1, snake.size - 2)
+                if snake.attack:
+                    snake.fangs = Rect(snake.head.x + snake.size - 1, snake.head.y + 1, 20, snake.size - 2)
+            elif snake.direction == "west":
+                snake.head.x -= 2
+                snake.degree = 180
+                snake.face = Rect(snake.head.x - 1, snake.head.y + 1, 1, snake.size - 2)
+                if snake.attack:
+                    snake.fangs = Rect(snake.head.x - 20, snake.head.y - 1, 20, snake.size - 2)
+            elif snake.direction == "north":
+                snake.head.y -= 2
+                snake.degree = 90
+                snake.face = Rect(snake.head.x + 0, snake.head.y - 1, snake.size - 2, 1)
+                if snake.attack:
+                    snake.fangs = Rect(snake.head.x + 0, snake.head.y - 20, snake.size - 2, 20)
+            elif snake.direction == "south":
+                snake.head.y += 2
+                snake.degree = 270
+                snake.face = Rect(snake.head.x + 1, snake.head.y + snake.size - 1, snake.size - 2, 1)
+                if snake.attack:
+                    snake.fangs = Rect(snake.head.x + 1, snake.head.y + snake.size - 1, snake.size - 2, 20)
+
+                
+
+
+                snake.pos_lst.insert(0, snake.head[:])
+
+
+
     while not done:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -186,54 +223,60 @@ def main():
                         if snake.lst_index >= len(snake.pos_lst):
                             snake.lst_index = 0
 
-                if snake.attack:
-                    length = 18
-                else:
-                    length = 1
 
                 if snake.direction == "east":
                     snake.head.x += 2
                     snake.degree = 0
-                    snake.face = Rect(snake.head.x + snake.size - 1, snake.head.y + 1, length, snake.size - 2)
+                    snake.face = Rect(snake.head.x + snake.size - 1, snake.head.y + 1, 1, snake.size - 2)
+                    if snake.attack:
+                        snake.fangs = Rect(snake.head.x + snake.size - 1, snake.head.y + 1, 20, snake.size - 2)
                 elif snake.direction == "west":
                     snake.head.x -= 2
                     snake.degree = 180
-                    snake.face = Rect(snake.head.x - length, snake.head.y - 1, length, snake.size - 2)
+                    snake.face = Rect(snake.head.x + 0, snake.head.y + 1, 1, snake.size - 2)
+                    if snake.attack:
+                        snake.fangs = Rect(snake.head.x - 20, snake.head.y - 1, 20, snake.size - 2)
                 elif snake.direction == "north":
                     snake.head.y -= 2
                     snake.degree = 90
-                    snake.face = Rect(snake.head.x + 0, snake.head.y - length, snake.size - 2, length)
+                    snake.face = Rect(snake.head.x + 1, snake.head.y + 0, snake.size - 2, 1)
+                    if snake.attack:
+                        snake.fangs = Rect(snake.head.x + 0, snake.head.y - 20, snake.size - 2, 20)
                 elif snake.direction == "south":
                     snake.head.y += 2
                     snake.degree = 270
-                    snake.face = Rect(snake.head.x + 1, snake.head.y + snake.size - 1, snake.size - 2, length)
+                    snake.face = Rect(snake.head.x + 1, snake.head.y + snake.size - 1, snake.size - 2, 1)
+                    if snake.attack:
+                        snake.fangs = Rect(snake.head.x + 1, snake.head.y + snake.size - 1, snake.size - 2, 20)
+
+                
+
 
                 snake.pos_lst.insert(0, snake.head[:])
                 snake.pos_lst.pop(-1)
                     
                 snake.boost = 1
 
-            if random.randint(0, 5) == 0:
-                snake.pos_lst.append(snake.pos_lst[-1][:])
 
             # Check if the player is out of bounds
             if (
-                snake.head.x < snake.size / 2 - 1
-                or snake.head.x > width - snake.size / 2 + 1
-                or snake.head.y < snake.size / 2 - 1
-                or snake.head.y > height - snake.size / 2 + 1
+                snake.face.x < -1
+                or snake.face.x > width + 1
+                or snake.face.y < -1
+                or snake.face.y > width + 1
             ):
                 tie.append(snake)
                 snakes.remove(snake)
 
-            for j, test_snake in enumerate(snakes):
+            for test_snake in snakes:
                 if snake.attack and test_snake.pos_lst[3:]:
-                    collide_index = snake.face.collidelist(test_snake.pos_lst[3:])
+                    collide_index = snake.fangs.collidelist(test_snake.pos_lst[3:])
                     if collide_index != -1:
-                        collide_lst = [test_snake.pos_lst[i] for i in snake.face.collidelistall(test_snake.pos_lst[3:])]
-                        
-                        husk.extend([i for i in test_snake.pos_lst[collide_index : -1] if not i in collide_lst])
-                        test_snake.pos_lst = [i for i in test_snake.pos_lst[0 : collide_index] if not i in collide_lst]
+                        collide_lst = [test_snake.pos_lst[i] for i in snake.fangs.collidelistall(test_snake.pos_lst[3:])]
+                        if collide_index + 20 < len(test_snake.pos_lst):
+                            new_husk = [i for i in test_snake.pos_lst[collide_index + 20:] if not snake.fangs.colliderect(i)]
+                            husk.extend(new_husk)
+                        test_snake.pos_lst = [i for i in test_snake.pos_lst[:collide_index] if not i in collide_lst]
                 
                 elif test_snake.pos_lst[3:]:
                     if snake.face.collidelist(test_snake.pos_lst[3:]) != -1:
@@ -246,8 +289,30 @@ def main():
                 snakes.remove(snake)
 
             for i in range(625):
-                simple_snake_pos = int(snake.face.x / 20) + 25 * int(snake.face.y / 20)
-                if i == simple_snake_pos:
+                if snake.attack:
+                    snake_pos_one = int(snake.fangs.x / 20) + 25 * int(snake.fangs.y / 20)
+                    snake_pos_two = int((snake.fangs.x + snake.fangs.size[0]) / 20) + 25 * int((snake.fangs.y + snake.fangs.size[1]) / 20)
+                    if i == snake_pos_one or i == snake_pos_two:
+                        byte = int(i / 4)
+                        bit = 2 * (i % 4)
+                        tile = (map_info[byte] << bit & 255) >> 6
+                        if tile == 2:
+                            map_byte = map_info[byte]
+                            index = 6 - bit
+                            map_byte = 0b11 << index | map_byte
+                            map_byte = ((0b11 << index) ^ 0xFF) & map_byte
+                            map_info = map_info[:byte] + map_byte.to_bytes(1, 'little') + map_info[byte + 1:]
+                        if tile == 3:
+                            for i in range(25):
+                                snake.pos_lst.append(snake.pos_lst[-1][:])
+                            map_byte = map_info[byte]
+                            index = 6 - bit
+                            map_byte = 0b11 << index | map_byte
+                            map_byte = ((0b11 << index) ^ 0xFF) & map_byte
+                            map_info = map_info[:byte] + map_byte.to_bytes(1, 'little') + map_info[byte + 1:]
+
+                snake_pos = int(snake.face.x / 20) + 25 * int(snake.face.y / 20)
+                if i == snake_pos:
                     byte = int(i / 4)
                     bit = 2 * (i % 4)
                     tile = (map_info[byte] << bit & 255) >> 6
@@ -255,10 +320,17 @@ def main():
                         tie.append(snake)
                         snakes.remove(snake)
                     elif tile == 2:
-                        pass
+                        tie.append(snake)
+                        snakes.remove(snake)
                     elif tile == 3:
-                        pass
-            
+                        for i in range(25):
+                            snake.pos_lst.append(snake.pos_lst[-1])
+                        map_byte = map_info[byte]
+                        index = 6 - bit
+                        map_byte = 0b11 << index | map_byte
+                        map_byte = ((0b11 << index) ^ 0xFF) & map_byte
+                        map_info = map_info[:byte] + map_byte.to_bytes(1, 'little') + map_info[byte + 1:]
+
 
         if tie == []:
             screen.fill(Color.grey)
@@ -301,7 +373,8 @@ def main():
             for snake in snakes:
                 for rect in snake.pos_lst:
                     pg.draw.rect(screen, snake.color, rect)                                                                                   
-                pg.draw.rect(screen, Color.red, snake.face, 1)
+                # pg.draw.rect(screen, Color.red, snake.face, 1)
+                # pg.draw.rect(screen, Color.green, snake.fangs, 1)
                 
         elif len(snakes) <= 1:
             print(snakes[0].color)
@@ -311,15 +384,15 @@ def main():
         
         total_screen.blit(screen, (100, 100))
 
-        sub = total_screen.subsurface((snakes[-1].head.x, snakes[-1].head.y, 200, 200)).copy()
+        sub = total_screen.subsurface((snakes[0].head.x, snakes[0].head.y, 200, 200)).copy()
         sub = pg.transform.scale(sub, (400, 400))
         snake_window = pg.display.set_mode((400, 400))
-        pg.display.set_caption(player_color.translate[snakes[-1].color])
+        pg.display.set_caption(player_color.translate[snakes[0].color])
         snake_window.blit(sub, (0, 0))
 
 
         pg.display.flip()
-        clock.tick(50)
+        clock.tick(10)
 
     pg.quit()
     sys.exit()
