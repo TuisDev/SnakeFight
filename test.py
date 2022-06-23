@@ -72,16 +72,31 @@
 #     pg.display.update()
 
 # pg.quit()
-import struct
-from game import player_color
-import time
 
-encoded = 0b010101011100110001100110.to_bytes(3, 'little')
-for byte in range(3):
-    for bit in range(0, 8, 2):
-        # print(bin((encoded[byte] << bit & 255) >> 6 - bit))
-        print(bit)
-        print(bin((0b10011001 << bit) & 0b11111111))
-        print(bin((0b10011001 << bit & 255) >> 6))
 
-print(int(bin(0b10101010)[:2:-1], 2))
+
+
+
+# import struct
+# from game import player_color
+# import time
+
+# encoded = 0b010101011100110001100110.to_bytes(3, 'little')
+# for byte in range(3):
+#     for bit in range(0, 8, 2):
+#         # print(bin((encoded[byte] << bit & 255) >> 6 - bit))
+#         print(bit)
+#         print(bin((0b10011001 << bit) & 0b11111111))
+#         print(bin((0b10011001 << bit & 255) >> 6))
+
+# print(int(bin(0b10101010)[:2:-1], 2))
+
+
+
+  
+# Open file in binary write mode
+with open("map.txt", "rb") as binary_file:
+    
+    # Write bytes to file
+    print(binary_file.readline())
+  
