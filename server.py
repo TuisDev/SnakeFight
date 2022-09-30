@@ -15,6 +15,7 @@ ipv4_port = 65432
 start_time = time.time()
 snake_color_lst = [[player_color.blue]]
 ready_snakes = [0b00000000]
+is_ready = False
 
 def look_for_clients():
     with socket.socket(socket.AF_INET6, socket.SOCK_DGRAM, socket.IPPROTO_UDP) as udp_sock:
@@ -41,14 +42,16 @@ def tcp_server(conn, snake_num):
         body_len = len(snake_color_lst[0]) * 3
         hdr = struct.pack('>H', (snake_num << 4 | body_len) << 8 | ready_snakes[0])
         conn.sendall(hdr)
-        print(hdr)
+
         for rgb in snake_color_lst[0]:
             for color in rgb:
                 color_bin = struct.pack('>B', color)
-                print(f'color_bin = {color_bin}')
                 conn.send(color_bin)
         if len(data) == 7:
             break
+        data = conn.recv(1024)
+        if data[:1] == b'f':
+            ready_snakes[0] = ready_snakes[0] | 0b10000000 >> snake_num
         time.sleep(0.1)
     conn.close()
 
@@ -63,8 +66,9 @@ def tcp_wait_for_client(socket):
 
 if __name__ == '__main__':
     threading.Thread(target=look_for_clients, args=(), daemon=True).start()
-    
     data_lock = threading.Lock()
+    
+    
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         try:
             print(f'THIS {(ipv4_host, ipv4_port)}')
@@ -83,29 +87,42 @@ if __name__ == '__main__':
             lobby = font.render(' Lobby ', True, Color.green, Color.blue)
             lobby_size = lobby.get_rect().size
 
-            ready = font.render(' Ready ', True, Color.blue, Color.green)
+            ready_txt = font.render(' Ready ', True, Color.blue, Color.green)
             ready_size = lobby.get_rect().size
 
             rect = Rect(width / 2 - 400 / 2, 90, 400, 300)
 
-            snk = Rect(width / 2 - 25 / 2, 250, 25, 140)
-            snk_num = 6            
-            x1pos = width / 2 - 25 / 2
-            x2pos = width / 2 + 25 / 2
+
+
+
 
             while not done:
+                screen.fill(Color.black)
+                snk_num = len(snake_color_lst[0])
                 screen.blit(lobby, (width / 2 - lobby_size[0] / 2, 10))
-                screen.blit(ready, (width / 2 - ready_size[0] / 2, 400))
+                screen.blit(ready_txt, (width / 2 - ready_size[0] / 2, 400))
 
                 pg.draw.rect(screen, Color.white, rect, 1)
                 snk = Rect(width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2, 250, 25, 140)
                 x1pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2)
                 x2pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25 ) / 2 + 25)
 
+                ready_snake_num = 0
+
                 for i in range(snk_num):
-                    pg.draw.rect(screen, Color.blue, snk)
-                    pg.draw.line(screen, Color.red, (x1pos, 50), (x2pos, 80), 5)
-                    pg.draw.line(screen, Color.red, (x1pos, 80), (x2pos, 50), 5)
+                    if (ready_snakes[0] << i & 0xff) >> 7 == 1:
+                        snk.y = 175
+                        snk.size = (snk.size[0], 215)
+                        ready_snake_num += 1
+                    else:
+                        snk.y = 250
+                        snk.size = (snk.size[0], 140)
+                        
+                    pg.draw.rect(screen, snake_color_lst[0][i], snk)
+                    
+                    if i > 0:
+                        pg.draw.line(screen, Color.red, (x1pos, 50), (x2pos, 80), 5)
+                        pg.draw.line(screen, Color.red, (x1pos, 80), (x2pos, 50), 5)
 
                     snk.x += 50
                     x1pos += 50
@@ -113,9 +130,28 @@ if __name__ == '__main__':
                 for event in pg.event.get():
                     if event.type == pg.QUIT:
                         done = True
+                    if event.type == pg.MOUSEBUTTONDOWN:
+                        if width / 2 - ready_size[0] <= pg.mouse.get_pos()[0] <= width / 2 and 400 <= pg.mouse.get_pos()[1] <= 400 + ready_size[1]:
+                            ready_snakes[0] = ready_snakes[0] | 0b10000000
+                        x1pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2)
+                        x2pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25 ) / 2 + 25)
+                        for i in range(snk_num):
+                            if i > 0:
+                                if x1pos <= pg.mouse.get_pos()[0] <= x2pos and 50 <= pg.mouse.get_pos()[1] <= 80:
+                                    print('de')
+                            x1pos += 50
+                            x2pos += 50
+                if ready_snake_num == snk_num and is_ready:
+                    print('k')
+                if ready_snake_num == snk_num:
+                    is_ready = True
+                else:
+                    is_ready = False
+
                 
                 pg.display.flip()
                 clock.tick(100)
+                
                 
             pg.quit()
             sys.exit()

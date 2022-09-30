@@ -17,6 +17,8 @@ start_time = time.time()
 received = [None]
 thread_pool = [0]
 data_buffer = b''
+is_ready = False
+socket.setdefaulttimeout(5)
 
 def check_group(udp_sock):
     try:
@@ -48,9 +50,8 @@ def server_finder():
 
     list_box = Rect(70, 30, 360, 400)
     addr_lst = list()
-    socket.setdefaulttimeout(3)
     with socket.socket(socket.AF_INET6, socket.SOCK_DGRAM) as udp_sock:
-
+        udp_sock.settimeout(1)
         while not done:
             for event in pg.event.get():
                     if event.type == pg.QUIT:
@@ -122,15 +123,32 @@ if __name__ == '__main__':
         print((ipv4_host, ipv4_port))
         s.connect((ipv4_host, ipv4_port))
         snake_color_lst = []
-        while True:
-            s.sendall(b'Hello')
+        pg.init()
+        done = False
+        size = 500, 500
+        width, height = size
+        screen = pg.display.set_mode((size))
+        clock = pg.time.Clock()
+        font = pg.font.Font('freesansbold.ttf', 32)
+        ready = False
+
+        lobby = font.render(' Lobby ', True, Color.green, Color.blue)
+        lobby_size = lobby.get_rect().size
+
+        ready_txt = font.render(' Ready ', True, Color.blue, Color.green)
+        ready_size = lobby.get_rect().size
+
+
+        rect = Rect(width / 2 - 400 / 2, 90, 400, 300)
+        s.sendall(b'Hello')
+        while not done:
             data = s.recv(4096)
             if data:
                 data_buffer += data
             if len(data_buffer) >= 2:
-                print('Trop Petit')
                 hdr = struct.unpack('>H', data_buffer[:2])[0]
                 body_len = hdr >> 8 & 0b1111
+                ready_snakes = hdr & 0xff
             if len(data_buffer) >= body_len + 2:
                 data_buffer = data_buffer[2:]
                 snake_color_lst = []
@@ -140,10 +158,49 @@ if __name__ == '__main__':
                         color.append(struct.unpack('>B', data_buffer[:1])[0])
                         data_buffer = data_buffer[1:]
                     snake_color_lst.append(tuple(color))
-            print(snake_color_lst)
 
+            screen.fill(Color.black)
+            snk_num = len(snake_color_lst)
+            screen.blit(lobby, (width / 2 - lobby_size[0] / 2, 10))
+            screen.blit(ready_txt, (width / 2 - ready_size[0] / 2, 400))
+
+            pg.draw.rect(screen, Color.white, rect, 1)
+            snk = Rect(width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2, 250, 25, 140)
+
+            ready_snake_num = 0
+           
+            for i in range(snk_num):
+                if (ready_snakes << i & 0xff) >> 7 == 1:
+                    snk.y = 175
+                    snk.size = (snk.size[0], 215)
+                    ready_snake_num += 1
+                else:
+                    snk.y = 250
+                    snk.size = (snk.size[0], 140)
+                    
+                pg.draw.rect(screen, snake_color_lst[i], snk)
                 
+                snk.x += 50
 
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    done = True
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    if width / 2 - ready_size[0] <= pg.mouse.get_pos()[0] <= width / 2 and 400 <= pg.mouse.get_pos()[1] <= 400 + ready_size[1]:
+                        ready = True
+            if ready_snake_num == snk_num and is_ready:
+                    print('k')
+            if ready_snake_num == snk_num:
+                is_ready = True
+            else:
+                is_ready = False
 
-            time.sleep(0.05)
-# cd onedrive/documents/coding/python
+            if ready:
+                s.sendall(b'f')
+            else:
+                s.sendall(b'g')
+
+            pg.display.flip()
+            clock.tick(100) 
+        pg.quit()
+        sys.exit()
