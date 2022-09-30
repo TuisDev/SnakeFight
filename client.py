@@ -168,7 +168,6 @@ if __name__ == '__main__':
             screen.blit(lobby, (width / 2 - lobby_size[0] / 2, 10))
             screen.blit(ready_txt, (width / 2 - ready_size[0] / 2, 400))
 
-            pg.draw.rect(screen, snake_color, rect, 1)
             snk = Rect(width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2, 250, 25, 140)
 
             ready_snake_num = 0
@@ -185,6 +184,9 @@ if __name__ == '__main__':
                 pg.draw.rect(screen, snake_color_lst[i], snk)
                 
                 snk.x += 50
+
+            # Draw outline
+            pg.draw.rect(screen, snake_color, rect, 1)
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:

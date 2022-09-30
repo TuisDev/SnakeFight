@@ -101,7 +101,6 @@ if __name__ == '__main__':
                 screen.blit(lobby, (width / 2 - lobby_size[0] / 2, 10))
                 screen.blit(ready_txt, (width / 2 - ready_size[0] / 2, 400))
 
-                pg.draw.rect(screen, Color.blue, rect, 1)
                 snk = Rect(width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2, 250, 25, 140)
                 x1pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2)
                 x2pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25 ) / 2 + 25)
@@ -119,6 +118,7 @@ if __name__ == '__main__':
                         
                     pg.draw.rect(screen, snake_color_lst[0][i], snk)
                     
+
                     if i > 0:
                         pg.draw.line(screen, Color.red, (x1pos, 50), (x2pos, 80), 5)
                         pg.draw.line(screen, Color.red, (x1pos, 80), (x2pos, 50), 5)
@@ -126,6 +126,10 @@ if __name__ == '__main__':
                     snk.x += 50
                     x1pos += 50
                     x2pos += 50
+
+                # Draw Outline
+                pg.draw.rect(screen, Color.blue, rect, 1)
+
                 for event in pg.event.get():
                     if event.type == pg.QUIT:
                         done = True
