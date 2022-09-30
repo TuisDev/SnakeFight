@@ -42,7 +42,6 @@ def tcp_server(conn, snake_num):
         body_len = len(snake_color_lst[0]) * 3
         hdr = struct.pack('>H', (snake_num << 4 | body_len) << 8 | ready_snakes[0])
         conn.sendall(hdr)
-
         for rgb in snake_color_lst[0]:
             for color in rgb:
                 color_bin = struct.pack('>B', color)
@@ -102,7 +101,7 @@ if __name__ == '__main__':
                 screen.blit(lobby, (width / 2 - lobby_size[0] / 2, 10))
                 screen.blit(ready_txt, (width / 2 - ready_size[0] / 2, 400))
 
-                pg.draw.rect(screen, Color.white, rect, 1)
+                pg.draw.rect(screen, Color.blue, rect, 1)
                 snk = Rect(width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2, 250, 25, 140)
                 x1pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2)
                 x2pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25 ) / 2 + 25)

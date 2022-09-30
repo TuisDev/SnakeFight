@@ -131,6 +131,7 @@ if __name__ == '__main__':
         clock = pg.time.Clock()
         font = pg.font.Font('freesansbold.ttf', 32)
         ready = False
+        snake_color = Color.white
 
         lobby = font.render(' Lobby ', True, Color.green, Color.blue)
         lobby_size = lobby.get_rect().size
@@ -147,6 +148,7 @@ if __name__ == '__main__':
                 data_buffer += data
             if len(data_buffer) >= 2:
                 hdr = struct.unpack('>H', data_buffer[:2])[0]
+                snake_num = hdr >> 12
                 body_len = hdr >> 8 & 0b1111
                 ready_snakes = hdr & 0xff
             if len(data_buffer) >= body_len + 2:
@@ -158,13 +160,15 @@ if __name__ == '__main__':
                         color.append(struct.unpack('>B', data_buffer[:1])[0])
                         data_buffer = data_buffer[1:]
                     snake_color_lst.append(tuple(color))
+                    if len(snake_color_lst) > snake_num:
+                        snake_color = snake_color_lst[snake_num]
 
             screen.fill(Color.black)
             snk_num = len(snake_color_lst)
             screen.blit(lobby, (width / 2 - lobby_size[0] / 2, 10))
             screen.blit(ready_txt, (width / 2 - ready_size[0] / 2, 400))
 
-            pg.draw.rect(screen, Color.white, rect, 1)
+            pg.draw.rect(screen, snake_color, rect, 1)
             snk = Rect(width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2, 250, 25, 140)
 
             ready_snake_num = 0
