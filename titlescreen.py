@@ -8,7 +8,7 @@ import pygame as pg
 from pygame.locals import *
 import random
 import os
-from game import Color
+from servergame import Color
 
 pg.init()
 size = 500, 500
@@ -42,7 +42,7 @@ while not done:
             if event.type == pg.MOUSEBUTTONDOWN:
                 if width / 2 - join_size[0] - 7 <= pg.mouse.get_pos()[0] <= width / 2 - 7  and 365 <= pg.mouse.get_pos()[1] <= 365 + join_size[1]:
                     pg.display.quit()
-                    os.system('python game.py')
+                    os.system('python client.py')
                 elif width / 2 + host_size[0] - 105 <= pg.mouse.get_pos()[0] <= width / 2 + 105 and 365 <= pg.mouse.get_pos()[1] <= 365 + host_size[1]:
                     pg.display.quit()
                     os.system('python server.py')

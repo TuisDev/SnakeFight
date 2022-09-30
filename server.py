@@ -5,7 +5,7 @@ import sys
 import threading
 import pygame as pg
 from pygame.locals import *
-from game import player_color, Color
+from servergame import player_color, Color
 
 computer_name = socket.gethostname()
 ipv6_multicast = "ff02::face:1"
@@ -89,8 +89,7 @@ if __name__ == '__main__':
             rect = Rect(width / 2 - 400 / 2, 90, 400, 300)
 
             snk = Rect(width / 2 - 25 / 2, 250, 25, 140)
-            snk_num = 8
-            
+            snk_num = 6            
             x1pos = width / 2 - 25 / 2
             x2pos = width / 2 + 25 / 2
 

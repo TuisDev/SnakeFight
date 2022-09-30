@@ -90,13 +90,51 @@
 #         print(bin((0b10011001 << bit & 255) >> 6))
 
 # print(int(bin(0b10101010)[:2:-1], 2))
+import socket
+import sys
+from turtle import color
+import pygame as pg
+from pygame.locals import *
+from servergame import Color, player_color
+import threading
+import time
+import struct
+port = 65432
+color = []
 
+def connect(conn):
+    data_buffer = b''
+    data = conn.recv(4096)
+    data_buffer += data
+    for i in range(3):
+        color.append(struct.unpack('>B', data_buffer[:1])[0])
+    print(color)
+    conn.send(b's')
+    pg.init()
+    done = False
+    screen = pg.display.set_mode((400, 400))
 
+    while True:
+        data = conn.recv(256)
+        if data[:1] == b'u':
+            print('UP')
+        elif data[:1] == b'r':
+            print('LEFT')
+        elif data[:1] == b'd':
+            print('DOWN')
+        elif data[:1] == b'l':
+            print('RIGHT')
 
-  
-# Open file in binary write mode
-string = '1234567890'
-print(string[5])
-print(string[:5])
-print(string[6:])
-  
+    pg.display.flip()
+    pg.quit()
+
+def main(host):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((host, port))
+        s.listen(7)
+        conn, addr = s.accept()
+        threading.Thread(target=connect, args=(conn,)).start()
+       
+
+if __name__ == '__main__':
+    main('127.0.0.1')

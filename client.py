@@ -3,7 +3,7 @@ import socket
 import sys
 import pygame as pg
 from pygame.locals import *
-from game import Color, player_color
+from servergame import Color, player_color
 import threading
 import time
 import struct

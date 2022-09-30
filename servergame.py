@@ -10,7 +10,8 @@ import pygame as pg
 from pygame.locals import *
 import random
 import os
-  
+import socket
+
 class Color:
     red = (255, 0, 0)
     green = (0, 255, 0)
