@@ -90,51 +90,66 @@
 #         print(bin((0b10011001 << bit & 255) >> 6))
 
 # print(int(bin(0b10101010)[:2:-1], 2))
-import socket
-import sys
-from turtle import color
-import pygame as pg
-from pygame.locals import *
-from servergame import Color, player_color
-import threading
-import time
-import struct
-port = 65432
-color = []
 
-def connect(conn):
-    data_buffer = b''
-    data = conn.recv(4096)
-    data_buffer += data
-    for i in range(3):
-        color.append(struct.unpack('>B', data_buffer[:1])[0])
-    print(color)
-    conn.send(b's')
-    pg.init()
-    done = False
-    screen = pg.display.set_mode((400, 400))
 
-    while True:
-        data = conn.recv(256)
-        if data[:1] == b'u':
-            print('UP')
-        elif data[:1] == b'r':
-            print('LEFT')
-        elif data[:1] == b'd':
-            print('DOWN')
-        elif data[:1] == b'l':
-            print('RIGHT')
 
-    pg.display.flip()
-    pg.quit()
 
-def main(host):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((host, port))
-        s.listen(7)
-        conn, addr = s.accept()
-        threading.Thread(target=connect, args=(conn,)).start()
+# import socket
+# import sys
+# from turtle import color
+# import pygame as pg
+# from pygame.locals import *
+# from servergame import Color, player_color
+# import threading
+# import time
+# import struct
+# port = 65432
+# color = []
+
+# def connect(conn):
+#     data_buffer = b''
+#     data = conn.recv(4096)
+#     data_buffer += data
+#     for i in range(3):
+#         color.append(struct.unpack('>B', data_buffer[:1])[0])
+#     print(color)
+#     conn.send(b's')
+#     pg.init()
+#     done = False
+#     screen = pg.display.set_mode((400, 400))
+
+#     while True:
+#         data = conn.recv(256)
+#         if data[:1] == b'u':
+#             print('UP')
+#         elif data[:1] == b'r':
+#             print('LEFT')
+#         elif data[:1] == b'd':
+#             print('DOWN')
+#         elif data[:1] == b'l':
+#             print('RIGHT')
+
+#     pg.display.flip()
+#     pg.quit()
+
+# def main(host):
+#     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+#         s.bind((host, port))
+#         s.listen(7)
+#         conn, addr = s.accept()
+#         threading.Thread(target=connect, args=(conn,)).start()
        
 
-if __name__ == '__main__':
-    main('127.0.0.1')
+# if __name__ == '__main__':
+#     main('127.0.0.1')
+
+
+
+
+
+
+lst = [1, 2, 0, 4, 5, 0, 7]
+while 0 in lst:
+    print(lst.index(0))
+    del lst[lst.index(0)]
+print([num for num in lst if num != 0])

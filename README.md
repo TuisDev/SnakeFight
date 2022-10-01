@@ -5,14 +5,13 @@ A game where snakes fight to the death
 # TO DO
 
 - lobby
-  - Bans
-    - make sure color/order is not changed
-    - make sure they must close then reopen the app in order to rejoin the server
-  - Ready button
+  - make it so that readying and baning work together
+  - Play button
   - Send people to servergame/clientgame
   - make it so that when a client leaves, the server acts like they got banned
   - Fix issue where the windows remeber servers/clients that no longer exist
   - Fix the maximum limit thingy so that clients dont even have the option to join if the server is full
+  - Fix buggyness asociated with finding a server
   - add quit button
 - main game
 - ...
@@ -22,10 +21,11 @@ A game where snakes fight to the death
   - ...
 - ...
 - Window
-  - cosmetic changes
-    - rename window
   - Make it so that the window stays open the entire time
   - make it so that if an error occurs in any branch off the main menu, it returns you to the main menu
+    - Add a disconect screen
+  - cosmetic changes
+    - rename window
 - Make program look nice
     - COMMENT
     - Reformat where necesary

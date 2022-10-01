@@ -137,7 +137,7 @@ if __name__ == '__main__':
         lobby_size = lobby.get_rect().size
 
         ready_txt = font.render(' Ready ', True, Color.blue, Color.green)
-        ready_size = lobby.get_rect().size
+        ready_size = ready_txt.get_rect().size
 
 
         rect = Rect(width / 2 - 400 / 2, 90, 400, 300)
@@ -148,12 +148,13 @@ if __name__ == '__main__':
                 data_buffer += data
             if len(data_buffer) >= 2:
                 hdr = struct.unpack('>H', data_buffer[:2])[0]
-                snake_num = hdr >> 12
-                body_len = hdr >> 8 & 0b1111
+                snake_num = hdr >> 13
+                body_len = hdr >> 8 & 0b11111
                 ready_snakes = hdr & 0xff
             if len(data_buffer) >= body_len + 2:
                 data_buffer = data_buffer[2:]
                 snake_color_lst = []
+                print(len(data_buffer))
                 for i in range(int(body_len / 3)):
                     color = []
                     for i in range(3):
@@ -192,19 +193,16 @@ if __name__ == '__main__':
                 if event.type == pg.QUIT:
                     done = True
                 if event.type == pg.MOUSEBUTTONDOWN:
-                    if width / 2 - ready_size[0] <= pg.mouse.get_pos()[0] <= width / 2 and 400 <= pg.mouse.get_pos()[1] <= 400 + ready_size[1]:
+                    if width / 2 - ready_size[0] / 2 <= pg.mouse.get_pos()[0] <= width / 2 + ready_size[0] / 2 and 400 <= pg.mouse.get_pos()[1] <= 400 + ready_size[1]:
                         ready = True
-            if ready_snake_num == snk_num and is_ready:
-                    print('k')
-            if ready_snake_num == snk_num:
-                is_ready = True
-            else:
-                is_ready = False
+                        ready_txt = font.render(' Ready ', True, Color.green, Color.blue)
+
 
             if ready:
-                s.sendall(b'f')
+                print("ready")
+                s.sendall(b'r')
             else:
-                s.sendall(b'g')
+                s.sendall(b'n')
 
             pg.display.flip()
             clock.tick(100) 
