@@ -154,7 +154,6 @@ if __name__ == '__main__':
             if len(data_buffer) >= body_len + 2:
                 data_buffer = data_buffer[2:]
                 snake_color_lst = []
-                print(len(data_buffer))
                 for i in range(int(body_len / 3)):
                     color = []
                     for i in range(3):
@@ -199,7 +198,6 @@ if __name__ == '__main__':
 
 
             if ready:
-                print("ready")
                 s.sendall(b'r')
             else:
                 s.sendall(b'n')

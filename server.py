@@ -15,6 +15,7 @@ ipv4_port = 65432
 start_time = time.time()
 snake_color_lst = [[player_color.blue]]
 ready_snakes = [0b00000000]
+banned_snakes = [[0]]
 is_ready = False
 
 def look_for_clients():
@@ -35,19 +36,23 @@ def look_for_clients():
 def tcp_server(conn, snake_num):
     with data_lock:
         data = conn.recv(1024)
-        print(f'scl = {snake_color_lst}')
-        print(snake_color_lst)
-        # snake_color_lst[0].append(list(player_color.translate)[len(snake_color_lst[0])])
         snake_color_lst[0].append([color for color in list(player_color.translate) if color not in snake_color_lst[0]][0])
     while True:
-        unban_snake_color_lst = [color for color in snake_color_lst[0] if color != Color.black]
-        if snake_color_lst[0][snake_num] == Color.black:
+        if banned_snakes[0][0] == snake_num:
+            with data_lock:
+                banned_snakes[0][0] = 0
+                ready_snakes[0] = ready_snakes[0] & 0b111111101111111 >> snake_num
             break
-        body_len = len(unban_snake_color_lst) * 3
+        while snake_num in banned_snakes[0] and banned_snakes[0][0] == 0:
+            with data_lock:
+                banned_snakes[0][banned_snakes[0].index(snake_num)] += 1    
+            snake_num -= 1
+
+        body_len = len(snake_color_lst[0]) * 3
         hdr = struct.pack('>H', (snake_num << 5 | body_len) << 8 | ready_snakes[0])
         
         conn.sendall(hdr)
-        for rgb in unban_snake_color_lst:
+        for rgb in snake_color_lst[0]:
             for color in rgb:
                 color_bin = struct.pack('>B', color)
                 conn.send(color_bin)
@@ -57,6 +62,7 @@ def tcp_server(conn, snake_num):
         if data[:1] == b'r':
             with data_lock:
                 ready_snakes[0] = ready_snakes[0] | 0b10000000 >> snake_num
+
         time.sleep(0.1)
     conn.close()
 
@@ -95,8 +101,8 @@ if __name__ == '__main__':
             ready_txt = font.render(' Ready ', True, Color.blue, Color.green)
             ready_size = ready_txt.get_rect().size
 
-            play_text = font.render(' Play ', True, Color.green, Color.blue)
-            play_size = play_text.get_rect().size
+            play_txt = font.render(' Play ', True, Color.blue, Color.green)
+            play_size = play_txt.get_rect().size
 
             rect = Rect(width / 2 - 400 / 2, 90, 400, 300)
 
@@ -106,37 +112,42 @@ if __name__ == '__main__':
 
             while not done:
                 screen.fill(Color.black)
-                unban_snk_num = len([color for color in snake_color_lst[0] if color != Color.black])
                 snk_num = len(snake_color_lst[0])
-                screen.blit(lobby, (width / 2 - lobby_size[0] / 2, 10))
-                screen.blit(ready_txt, (width / 2 - ready_size[0] / 2, 400))
 
-                snk = Rect(width / 2 - (unban_snk_num * 25 + (unban_snk_num - 1) * 25) / 2, 250, 25, 140)
-                x1pos = (width / 2 - (unban_snk_num * 25 + (unban_snk_num - 1) * 25) / 2)
-                x2pos = (width / 2 - (unban_snk_num * 25 + (unban_snk_num - 1) * 25 ) / 2 + 25)
+                snk = Rect(width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2, 250, 25, 140)
+                x1pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2)
+                x2pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25 ) / 2 + 25)
 
                 ready_snake_num = 0
 
                 for i in range(snk_num):
-                    if snake_color_lst[0][i] != Color.black:
-                        if (ready_snakes[0] << i & 0xff) >> 7 == 1:
-                            snk.y = 175
-                            snk.size = (snk.size[0], 215)
-                            ready_snake_num += 1
-                        else:
-                            snk.y = 250
-                            snk.size = (snk.size[0], 140)
-                        
-                        pg.draw.rect(screen, snake_color_lst[0][i], snk)
-                        
+                    if (ready_snakes[0] << i & 0xff) >> 7 == 1:
+                        snk.y = 175
+                        snk.size = (snk.size[0], 215)
+                        ready_snake_num += 1
+                    else:
+                        snk.y = 250
+                        snk.size = (snk.size[0], 140)
+                    
+                    
+                    pg.draw.rect(screen, snake_color_lst[0][i], snk)
+                    
 
-                        if i > 0:
-                            pg.draw.line(screen, Color.red, (x1pos, 50), (x2pos, 80), 5)
-                            pg.draw.line(screen, Color.red, (x1pos, 80), (x2pos, 50), 5)
+                    if i > 0:
+                        pg.draw.line(screen, Color.red, (x1pos, 50), (x2pos, 80), 5)
+                        pg.draw.line(screen, Color.red, (x1pos, 80), (x2pos, 50), 5)
 
-                        snk.x += 50
-                        x1pos += 50
-                        x2pos += 50
+                    snk.x += 50
+                    x1pos += 50
+                    x2pos += 50
+
+                # Draw Text
+                screen.blit(lobby, (width / 2 - lobby_size[0] / 2, 10))
+
+                if ready_snake_num == snk_num:
+                    screen.blit(play_txt, (width / 2 - play_size[0] / 2, 400))
+                else:
+                    screen.blit(ready_txt, (width / 2 - ready_size[0] / 2, 400))
 
                 # Draw Outline
                 pg.draw.rect(screen, Color.blue, rect, 1)
@@ -145,20 +156,24 @@ if __name__ == '__main__':
                     if event.type == pg.QUIT:
                         done = True
                     if event.type == pg.MOUSEBUTTONDOWN:
-                        # Ready Button
-                        if width / 2 - ready_size[0] / 2 <= pg.mouse.get_pos()[0] <= width / 2 + ready_size[0] / 2 and 400 <= pg.mouse.get_pos()[1] <= 400 + ready_size[1]:
-                            ready_snakes[0] = ready_snakes[0] | 0b10000000
-                            ready_txt = font.render(' Ready ', True, Color.green, Color.blue)
+                        if ready_snake_num == snk_num:
+                            if width / 2 - play_size[0] / 2 <= pg.mouse.get_pos()[0] <= width / 2 + play_size[0] / 2 and 400 <= pg.mouse.get_pos()[1] <= 400 + play_size[1]:
+                                print("PLAY")
+                        else:
+                            # Ready Button
+                            if width / 2 - play_size[0] / 2 <= pg.mouse.get_pos()[0] <= width / 2 + ready_size[0] / 2 and 400 <= pg.mouse.get_pos()[1] <= 400 + ready_size[1]:
+                                ready_snakes[0] = ready_snakes[0] | 0b10000000
+                                ready_txt = font.render(' Ready ', True, Color.green, Color.blue)
 
-                        # Ban button
-                        x1pos = (width / 2 - (unban_snk_num * 25 + (unban_snk_num - 1) * 25) / 2)
-                        x2pos = (width / 2 - (unban_snk_num * 25 + (unban_snk_num - 1) * 25 ) / 2 + 25)
-                        for i in range(snk_num):
-                            if snake_color_lst[0][i] != Color.black:
+                            # Ban button
+                            x1pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2)
+                            x2pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25 ) / 2 + 25)
+                            for i in range(snk_num):
                                 if i > 0:
                                     if x1pos <= pg.mouse.get_pos()[0] <= x2pos and 50 <= pg.mouse.get_pos()[1] <= 80:
-                                        snake_color_lst[0][i] = Color.black
-                                        print(snake_color_lst)
+                                        del snake_color_lst[0][i]
+                                        banned_snakes[0][0] = i
+                                        banned_snakes[0].insert(1, i+1)
                                 x1pos += 50
                                 x2pos += 50
 

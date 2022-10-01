@@ -5,15 +5,13 @@ A game where snakes fight to the death
 # TO DO
 
 - lobby
-  - make it so that readying and baning work together
-  - Play button
-  - Send people to servergame/clientgame
   - make it so that when a client leaves, the server acts like they got banned
   - Fix issue where the windows remeber servers/clients that no longer exist
   - Fix the maximum limit thingy so that clients dont even have the option to join if the server is full
   - Fix buggyness asociated with finding a server
   - add quit button
 - main game
+  - Send people to servergame/clientgame
 - ...
 - Tutorial
   - add a button on the main menu
