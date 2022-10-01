@@ -22,6 +22,8 @@ A game where snakes fight to the death
   - Make it so that the window stays open the entire time
   - make it so that if an error occurs in any branch off the main menu, it returns you to the main menu
     - Add a disconect screen
+  - Make it so that the window can be resized
+  - Adjust window settings so that the window represents other games
   - cosmetic changes
     - rename window
 - Make program look nice
@@ -30,6 +32,7 @@ A game where snakes fight to the death
 - Finish
     - Play test
         - try to break the game
-    - Cool app design
+    - Cool app image
     - Make into executable
     - PROFIT
+
