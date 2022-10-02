@@ -2,13 +2,14 @@
 
 A game where snakes fight to the death
 
-# TO DO
+# TO DO  
 
 - lobby
   - make it so that when a client leaves, the server acts like they got banned
   - Fix issue where the windows remeber servers/clients that no longer exist
   - Fix the maximum limit thingy so that clients dont even have the option to join if the server is full
   - Fix buggyness asociated with finding a server
+  - Catch all errors
   - add quit button
 - main game
   - Send people to servergame/clientgame

@@ -34,36 +34,42 @@ def look_for_clients():
                 print(f'send data to {addr}')
 
 def tcp_server(conn, snake_num):
-    with data_lock:
-        data = conn.recv(1024)
-        snake_color_lst[0].append([color for color in list(player_color.translate) if color not in snake_color_lst[0]][0])
-    while True:
-        if banned_snakes[0][0] == snake_num:
-            with data_lock:
-                banned_snakes[0][0] = 0
-                ready_snakes[0] = ready_snakes[0] & 0b111111101111111 >> snake_num
-            break
-        while snake_num in banned_snakes[0] and banned_snakes[0][0] == 0:
-            with data_lock:
-                banned_snakes[0][banned_snakes[0].index(snake_num)] += 1    
-            snake_num -= 1
+    try:
+        with data_lock:
+            data = conn.recv(1024)
+            snake_color_lst[0].append([color for color in list(player_color.translate) if color not in snake_color_lst[0]][0])
+        while True:
+            if banned_snakes[0][0] == snake_num:
+                with data_lock:
+                    banned_snakes[0][0] = 0
+                    ready_snakes[0] = ready_snakes[0] & 0b111111101111111 >> snake_num
+                break
+            while snake_num in banned_snakes[0] and banned_snakes[0][0] == 0:
+                with data_lock:
+                    banned_snakes[0][banned_snakes[0].index(snake_num)] += 1    
+                snake_num -= 1
 
-        body_len = len(snake_color_lst[0]) * 3
-        hdr = struct.pack('>H', (snake_num << 5 | body_len) << 8 | ready_snakes[0])
-        
-        conn.sendall(hdr)
-        for rgb in snake_color_lst[0]:
-            for color in rgb:
-                color_bin = struct.pack('>B', color)
-                conn.send(color_bin)
-        if len(data) == 7:
-            break
-        data = conn.recv(1024)
-        if data[:1] == b'r':
-            with data_lock:
-                ready_snakes[0] = ready_snakes[0] | 0b10000000 >> snake_num
+            body_len = len(snake_color_lst[0]) * 3
+            hdr = struct.pack('>H', (snake_num << 5 | body_len) << 8 | ready_snakes[0])
+            
+            conn.sendall(hdr)
+            for rgb in snake_color_lst[0]:
+                for color in rgb:
+                    color_bin = struct.pack('>B', color)
+                    conn.send(color_bin)
+            if len(data) == 7:
+                break
+            data = conn.recv(1024)
+            if data[:1] == b'r':
+                with data_lock:
+                    ready_snakes[0] = ready_snakes[0] | 0b10000000 >> snake_num
 
-        time.sleep(0.1)
+            time.sleep(0.1)
+    except ConnectionResetError:
+        with data_lock:
+            ready_snakes[0] = ready_snakes[0] & 0b111111101111111 >> snake_num
+            del snake_color_lst[0][snake_num]
+            banned_snakes[0].insert(1, snake_num + 1)
     conn.close()
 
 def tcp_wait_for_client(socket):
@@ -173,7 +179,7 @@ if __name__ == '__main__':
                                     if x1pos <= pg.mouse.get_pos()[0] <= x2pos and 50 <= pg.mouse.get_pos()[1] <= 80:
                                         del snake_color_lst[0][i]
                                         banned_snakes[0][0] = i
-                                        banned_snakes[0].insert(1, i+1)
+                                        banned_snakes[0].insert(1, i + 1)
                                 x1pos += 50
                                 x2pos += 50
 
