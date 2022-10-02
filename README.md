@@ -5,10 +5,8 @@ A game where snakes fight to the death
 # TO DO  
 
 - lobby
-  - Fix issue where the windows remeber servers/clients that no longer exist
-    - Make it so that you dont have to hit refresh
   - Test with multiple servers
-  - Fix the maximum limit thingy so that clients dont even have the option to join if the server is full
+    - got to wait for wes :( 
   - Fix buggyness asociated with finding a server
   - Catch all errors
   - add quit button

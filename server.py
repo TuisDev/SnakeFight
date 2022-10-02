@@ -29,7 +29,7 @@ def look_for_clients():
         while True:
             data, addr = udp_sock.recvfrom(1024)
             
-            if data == b'I want to play snake':
+            if data == b'I want to play snake' and len(snake_color_lst[0]) < 7:
                 udp_sock.sendto(f'{computer_name}, {ipv4_host}'.encode(), addr)
                 print(f'send data to {addr}')
 
@@ -77,6 +77,9 @@ def tcp_wait_for_client(socket):
     while True:
         time.sleep(0.05)
         conn, addr = socket.accept()
+        if len(snake_color_lst[0]) >= 7:
+            conn.close()
+            continue
         snake_num += 1
         print(f'Connected at {addr}')
         threading.Thread(target=tcp_server, args=(conn, snake_num), daemon=True).start()
@@ -90,7 +93,7 @@ if __name__ == '__main__':
         try:
             print(f'THIS {(ipv4_host, ipv4_port)}')
             s.bind((ipv4_host, ipv4_port))
-            s.listen(6)
+            s.listen(20)
             tcp_accept = threading.Thread(target=tcp_wait_for_client, args=(s,), daemon=True)
             tcp_accept.start()
             pg.init()
