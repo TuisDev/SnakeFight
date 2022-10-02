@@ -58,9 +58,9 @@ def server_finder():
                         done = True
                     if event.type == pg.MOUSEBUTTONDOWN:
                         if width / 2 - (reload_size[0] + play_size[0] + 20) / 2 <= pg.mouse.get_pos()[0] <= width / 2 - play_size[0] / 2 - 20 + reload_size[0] / 2 and 450 <= pg.mouse.get_pos()[1] <= 450 + reload_size[1]:
-                            pg.display.quit()
-                            return False
-
+                            addr_lst = []
+                            server_list = []
+                            activated_list = []
                         elif 70 <= pg.mouse.get_pos()[0] <= 430 and 30 <= pg.mouse.get_pos()[1] <= 430:
                             if not int((pg.mouse.get_pos()[1] - 30) / 25) > len(server_list) - 1:
                                 if True in activated_list:
@@ -89,7 +89,7 @@ def server_finder():
                     server_list.append(f'{server_name} {white_space} --- MAP')
                     activated_list.append(False)
 
-
+            received[0] = None
             screen.fill(Color.black)
 
             for index, server in enumerate(server_list):
@@ -114,7 +114,6 @@ def server_finder():
 if __name__ == '__main__':
     pg.init()
     ipv4_host = server_finder()
-    while not ipv4_host: ipv4_host = server_finder()
     pg.quit()
     if ipv4_host == 'QUIT':
         sys.exit()
