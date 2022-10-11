@@ -106,7 +106,7 @@ def main():
     green_snake = Snake('south', (pg.K_w, pg.K_d, pg.K_s, pg.K_a), player_color.green, 20, (80, 80))
     yellow_snake = Snake('south', (pg.K_t, pg.K_h, pg.K_g, pg.K_f), player_color.yellow, 20, (20, 20))
     red_snake = Snake('south', (pg.K_i, pg.K_l, pg.K_k, pg.K_j), player_color.red, 20, (40, 40))
-    blue_snake = Snake('south', (pg.K_UP, pg.K_RIGHT, pg.K_DOWN, pg.K_LEFT), player_color.blue, 20, (20, 60))
+    blue_snake = Snake('south', (pg.K_UP, pg.K_RIGHT, pg.K_DOWN, pg.K_LEFT), player_color.blue, 20, (40, 60))
     
     snakes = [green_snake, blue_snake]
 
@@ -119,7 +119,6 @@ def main():
     rand2 = random.randint(100, 400), random.randint(100, 400)
     clock = pg.time.Clock()
     done = False
-    tie = []
     husk = list()
     with open('map.txt', 'rb') as map_file:
         map_info = map_file.readline()
@@ -134,8 +133,6 @@ def main():
         pg.image.load('fang3.png'), pg.image.load('fang2.png'), 
     ]
 
-
-    # Makes all snakes a default length of 5
     for snake in snakes:
         for i in range(4):
             if snake.direction == "east":
@@ -209,10 +206,9 @@ def main():
             if snake.head.x % 20 == 0 and snake.head.y % 20 == 0:
                 snake.direction = snake.next_direction
 
-
         # Move the player
         for snake in snakes:
-            tie = []
+            
 
             for i in range(snake.boost):
                 
@@ -266,7 +262,6 @@ def main():
                 or snake.face.y < -1
                 or snake.face.y > width + 1
             ):
-                tie.append(snake)
                 snakes.remove(snake)
 
             for test_snake in snakes:
@@ -281,12 +276,10 @@ def main():
                 
                 elif test_snake.pos_lst[3:]:
                     if snake.face.collidelist(test_snake.pos_lst[3:]) != -1:
-                        tie.append(snake)
                         snakes.remove(snake)
                 
 
             if len(snake.pos_lst) == 0 or snake.face.collidelist(husk) != -1:
-                tie.append(snake)
                 snakes.remove(snake)
 
             for i in range(625):
@@ -318,10 +311,8 @@ def main():
                     bit = 2 * (i % 4)
                     tile = (map_info[byte] << bit & 255) >> 6
                     if  tile == 1:
-                        tie.append(snake)
                         snakes.remove(snake)
                     elif tile == 2:
-                        tie.append(snake)
                         snakes.remove(snake)
                     elif tile == 3:
                         for i in range(25):
@@ -332,8 +323,12 @@ def main():
                         map_byte = ((0b11 << index) ^ 0xFF) & map_byte
                         map_info = map_info[:byte] + map_byte.to_bytes(1, 'little') + map_info[byte + 1:]
 
+        ## Send Data to Client ##
+        
 
-        if tie == []:
+
+
+        if len(snakes) > 1:
             screen.fill(Color.grey)
 
             for i in range(625):
@@ -377,7 +372,7 @@ def main():
                 # pg.draw.rect(screen, Color.red, snake.face, 1)
                 # pg.draw.rect(screen, Color.green, snake.fangs, 1)
                 
-        elif len(snakes) <= 1:
+        else:
             print(snakes[0].color)
             return snakes[0].color
 
@@ -385,10 +380,13 @@ def main():
         
         total_screen.blit(screen, (100, 100))
 
-        sub = total_screen.subsurface((snakes[0].head.x, snakes[0].head.y, 200, 200)).copy()
+        snake_num = [snake.color for snake in snakes].index(Color.green)
+
+
+        sub = total_screen.subsurface((snakes[snake_num].head.x, snakes[snake_num].head.y, 200, 200)).copy()
         sub = pg.transform.scale(sub, (400, 400))
         snake_window = pg.display.set_mode((400, 400))
-        pg.display.set_caption(player_color.translate[snakes[0].color])
+        pg.display.set_caption(player_color.translate[snakes[snake_num].color])
         snake_window.blit(sub, (0, 0))
 
 

@@ -5,12 +5,16 @@ A game where snakes fight to the death
 # TO DO  
 
 - lobby
-  - Test with multiple servers
-    - got to wait for wes :( 
+
   - Fix buggyness asociated with finding a server
   - Catch all errors
   - add quit button
 - main game
+  - Share required drawing variables between server and client
+    - Create socket
+    - Create sending protocol
+    - Send Data
+
   - Send people to servergame/clientgame
 - ...
 - Tutorial

@@ -92,7 +92,7 @@
 # print(int(bin(0b10101010)[:2:-1], 2))
 
 
-
+## SENDING ARROW KEY TESTS ##
 
 # import socket
 # import sys
@@ -148,8 +148,17 @@
 
 
 
-lst = [1, 2, 0, 4, 5, 0, 7]
-while 0 in lst:
-    print(lst.index(0))
-    del lst[lst.index(0)]
-print([num for num in lst if num != 0])
+import pygame as pg
+
+pg.init()
+done = False
+screen = pg.display.set_mode((400, 400), pg.RESIZABLE)
+
+while not done:
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            done = True
+    print(screen.get_size())
+
+    pg.display.flip()
+pg.quit()
