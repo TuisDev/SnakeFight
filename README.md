@@ -36,3 +36,8 @@ A game where snakes fight to the death
     - Make into executable
     - PROFIT
 
+
+Although Jacob and Wes did all the coding, they would like to formally thank 
+Mclean Muir who used his great intellect to inspire them to make the game playable.
+Wes and Jacob would like to ensure that everyone seeing this game
+knows that Mclean has done 90% of all the work on this project /s
