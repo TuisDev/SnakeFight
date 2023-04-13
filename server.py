@@ -98,93 +98,98 @@ if __name__ == '__main__':
             tcp_accept.start()
             pg.init()
             done = False
-            size = 500, 500
-            width, height = size
-            screen = pg.display.set_mode((size))
+            screen = pg.display.set_mode((500, 500), pg.RESIZABLE)
             clock = pg.time.Clock()
-            font = pg.font.Font('freesansbold.ttf', 32)
-
-            lobby = font.render(' Lobby ', True, Color.green, Color.blue)
-            lobby_size = lobby.get_rect().size
-
-            ready_txt = font.render(' Ready ', True, Color.blue, Color.green)
-            ready_size = ready_txt.get_rect().size
-
-            play_txt = font.render(' Play ', True, Color.blue, Color.green)
-            play_size = play_txt.get_rect().size
-
-            rect = Rect(width / 2 - 400 / 2, 90, 400, 300)
-
-
-
-
+            
 
             while not done:
+                size = screen.get_size()
+                if size[0] < size[1]:
+                    length = size[0]
+                else:
+                    length = size[1]
+                vl = length / 100
+                offsetx = int((size[0] - length) / 2)
+                offsety = int((size[1] - length) / 2)
+
+                font = pg.font.Font('freesansbold.ttf', int(6.4 * vl))
+
+                lobby = font.render(' Lobby ', True, Color.green, Color.blue)
+                lobby_size = lobby.get_rect().size
+
+                ready_txt = font.render(' Ready ', True, Color.blue, Color.green)
+                ready_size = ready_txt.get_rect().size
+
+                play_txt = font.render(' Play ', True, Color.blue, Color.green)
+                play_size = play_txt.get_rect().size
+
+                rect = Rect(offsetx + length / 2 - int(80 * vl) / 2, offsety + int(18 * vl), int(80 * vl), int(60 * vl))
+
                 screen.fill(Color.black)
                 snk_num = len(snake_color_lst[0])
 
-                snk = Rect(width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2, 250, 25, 140)
-                x1pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2)
-                x2pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25 ) / 2 + 25)
+                snk = Rect(offsetx + length / 2 - (snk_num * int(5 * vl) + (snk_num - 1) * int(5 * vl)) / 2, offsety + int(50 * vl), int(5 * vl), int(28 * vl))
+                x1pos = offsetx + (length / 2 - (snk_num * int(5 * vl) + (snk_num - 1) * int(5 * vl)) / 2)
+                x2pos = offsetx + (length / 2 - (snk_num * int(5 * vl) + (snk_num - 1) * int(5 * vl) ) / 2 + int(5 * vl))
 
                 ready_snake_num = 0
 
                 for i in range(snk_num):
                     if (ready_snakes[0] << i & 0xff) >> 7 == 1:
-                        snk.y = 175
-                        snk.size = (snk.size[0], 215)
+                        snk.y = offsety + int(35 * vl)
+                        snk.size = (snk.size[0], int(43 * vl))
                         ready_snake_num += 1
                     else:
-                        snk.y = 250
-                        snk.size = (snk.size[0], 140)
+                        snk.y = offsety + int(50 * vl)
+                        snk.size = (snk.size[0], int(28 * vl))
                     
                     
                     pg.draw.rect(screen, snake_color_lst[0][i], snk)
                     
 
                     if i > 0:
-                        pg.draw.line(screen, Color.red, (x1pos, 50), (x2pos, 80), 5)
-                        pg.draw.line(screen, Color.red, (x1pos, 80), (x2pos, 50), 5)
+                        pg.draw.line(screen, Color.red, (x1pos, offsety + int(10 * vl)), (x2pos, offsety + int(16 * vl)), int(1 * vl))
+                        pg.draw.line(screen, Color.red, (x1pos, offsety + int(16 * vl)), (x2pos, offsety + int(10 * vl)), int(1 * vl))
 
-                    snk.x += 50
-                    x1pos += 50
-                    x2pos += 50
+                    snk.x += int(10 * vl)
+                    x1pos += int(10 * vl)
+                    x2pos += int(10 * vl)
 
                 # Draw Text
-                screen.blit(lobby, (width / 2 - lobby_size[0] / 2, 10))
+                screen.blit(lobby, (offsetx + length / 2 - lobby_size[0] / 2, offsety + int(2 * vl)))
 
                 if ready_snake_num == snk_num:
-                    screen.blit(play_txt, (width / 2 - play_size[0] / 2, 400))
+                    screen.blit(play_txt, (offsetx + length / 2 - play_size[0] / 2, offsety + int(80 * vl)))
                 else:
-                    screen.blit(ready_txt, (width / 2 - ready_size[0] / 2, 400))
+                    screen.blit(ready_txt, (offsetx + length / 2 - ready_size[0] / 2, offsety + int(80 * vl)))
 
                 # Draw Outline
-                pg.draw.rect(screen, Color.blue, rect, 1)
+                pg.draw.rect(screen, Color.blue, rect, int(1 + 0.2 * vl))
 
                 for event in pg.event.get():
                     if event.type == pg.QUIT:
                         done = True
                     if event.type == pg.MOUSEBUTTONDOWN:
                         if ready_snake_num == snk_num:
-                            if width / 2 - play_size[0] / 2 <= pg.mouse.get_pos()[0] <= width / 2 + play_size[0] / 2 and 400 <= pg.mouse.get_pos()[1] <= 400 + play_size[1]:
+                            if offsetx + length / 2 - play_size[0] / 2 <= pg.mouse.get_pos()[0] <= offsetx + length / 2 + play_size[0] / 2 and offsety + int(80 * vl) <= pg.mouse.get_pos()[1] <= offsety + int(80 * vl) + play_size[1]:
                                 print("PLAY")
                         else:
                             # Ready Button
-                            if width / 2 - play_size[0] / 2 <= pg.mouse.get_pos()[0] <= width / 2 + ready_size[0] / 2 and 400 <= pg.mouse.get_pos()[1] <= 400 + ready_size[1]:
+                            if offsetx + length / 2 - play_size[0] / 2 <= pg.mouse.get_pos()[0] <= offsetx + length / 2 + ready_size[0] / 2 and offsety + int(80 * vl) <= pg.mouse.get_pos()[1] <= offsety + int(80 * vl) + ready_size[1]:
                                 ready_snakes[0] = ready_snakes[0] | 0b10000000
                                 ready_txt = font.render(' Ready ', True, Color.green, Color.blue)
 
                             # Ban button
-                            x1pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2)
-                            x2pos = (width / 2 - (snk_num * 25 + (snk_num - 1) * 25 ) / 2 + 25)
+                            x1pos = offsetx + (length / 2 - (snk_num * int(5 * vl) + (snk_num - 1) * int(5 * vl)) / 2)
+                            x2pos = offsetx + (length / 2 - (snk_num * int(5 * vl) + (snk_num - 1) * int(5 * vl) ) / 2 + int(5 * vl))
                             for i in range(snk_num):
                                 if i > 0:
-                                    if x1pos <= pg.mouse.get_pos()[0] <= x2pos and 50 <= pg.mouse.get_pos()[1] <= 80:
+                                    if x1pos <= pg.mouse.get_pos()[0] <= x2pos and offsety + int(10 * vl) <= pg.mouse.get_pos()[1] <= offsety + int(16 * vl):
                                         del snake_color_lst[0][i]
                                         banned_snakes[0][0] = i
                                         banned_snakes[0].insert(1, i + 1)
-                                x1pos += 50
-                                x2pos += 50
+                                x1pos += int(10 * vl)
+                                x2pos += int(10 * vl)
 
 
                 pg.display.flip()

@@ -147,18 +147,72 @@
 
 
 
+### SENDING DATA FROM SERVER GAME TO CLIENT GAME ###
 
-import pygame as pg
+import socket
+import struct
+from servergame import Snake
+from servergame import player_color
 
-pg.init()
-done = False
-screen = pg.display.set_mode((400, 400), pg.RESIZABLE)
+ipv4_host = '127.0.0.1'
+ipv4_port = 65432
 
-while not done:
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            done = True
-    print(screen.get_size())
+ 
+husk = [[118, 120, 20, 20], [120, 120, 20, 20], [120, 118, 20, 20], [120, 116, 20, 20], [120, 114, 20, 20], [120, 112, 20, 20], [120, 110, 20, 20], [120, 108, 20, 20]]
 
-    pg.display.flip()
-pg.quit()
+green_snake = Snake('south', (0, 0, 0, 0), player_color.green, 20, (80, 80))
+green_snake.degree = 180
+yellow_snake = Snake('south', (0, 0, 0, 0), player_color.yellow, 20, (20, 20))
+yellow_snake.degree = 90
+red_snake = Snake('south', (0, 0, 0, 0), player_color.red, 20, (40, 40))
+red_snake.offset = [0, red_snake.size]
+blue_snake = Snake('south', (0, 0, 0, 0), player_color.blue, 20, (40, 60))
+blue_snake.offset = [blue_snake.size, 0]
+blue_snake.attack = True
+snakes = [green_snake, blue_snake, red_snake, yellow_snake]
+
+
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    try:
+        with open('map.txt', 'rb') as map_file:
+            map_info = map_file.readline()
+
+        print(f'THIS {(ipv4_host, ipv4_port)}')
+        s.bind((ipv4_host, ipv4_port))
+        s.listen(20)
+        conn, addr = s.accept()
+        done = False
+        while True:
+            # Send Map
+            data = struct.pack('>B', len(map_info))
+            conn.send(data)
+            conn.sendall(map_info)
+
+            # Send snakes
+            data = struct.pack('>B', len(snakes))
+            conn.send(data)
+            for snake in snakes:
+                data = struct.pack('>B', (snake.attack << 7) | (snake.size << 2) | (int)(snake.degree / 90))
+                conn.send(data)
+
+                data = struct.pack('>h', snake.head.x)
+                conn.sendall(data)
+                data = struct.pack('>h', snake.head.y)
+                conn.sendall(data)
+
+                data = struct.pack('>h', len(snake.pos_lst) * 4)
+                conn.sendall(data)
+
+                for pos in snake.pos_lst:
+                    conn.sendall(struct.pack('>h', int(pos[0] / 2)))
+                    conn.sendall(struct.pack('>h', int(pos[1] / 2)))
+
+            # Send husks
+            data = struct.pack('>h', len(husk)*4)
+            conn.sendall(data)
+            for block in husk:
+                conn.sendall(struct.pack('>h', int(block[0] / 2)))
+                conn.sendall(struct.pack('>h', int(block[1] / 2)))
+    except KeyboardInterrupt:
+        print('BYEBYEBYE')

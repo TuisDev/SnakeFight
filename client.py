@@ -1,4 +1,4 @@
-
+65432
 import socket
 import sys
 import pygame as pg
@@ -34,40 +34,51 @@ def color_picker():
     pass
 
 def server_finder():
-    size = 500, 500
-    width, height = size
-    screen = pg.display.set_mode((size))
-    font = pg.font.SysFont('Courier New', 16)
+    screen = pg.display.set_mode((500, 500), pg.RESIZABLE)
+    
     done = False
     server_list = []
     activated_list = []
 
-    reload = font.render('Refresh', True, Color.green, Color.blue)
-    reload_size = reload.get_rect().size
-
-    play = font.render('PLAY!', True, Color.grey_blue, Color.grey_green)
-    play_size = play.get_rect().size
-
-    list_box = Rect(70, 30, 360, 400)
     addr_lst = list()
     with socket.socket(socket.AF_INET6, socket.SOCK_DGRAM) as udp_sock:
         udp_sock.settimeout(1)
         while not done:
+            size = screen.get_size()
+            if size[0] < size[1]:
+                length = size[0]
+            else:
+                length = size[1]
+            vl = length / 100
+            offsetx = int((size[0] - length) / 2)
+            offsety = int((size[1] - length) / 2)
+
+            font = pg.font.SysFont('Courier New', int(3.2 * vl))
+            
+            reload = font.render('Refresh', True, Color.green, Color.blue)
+            reload_size = reload.get_rect().size
+
+            play = font.render('PLAY!', True, Color.grey_blue, Color.grey_green)
+            play_size = play.get_rect().size
+
+            list_box = Rect(offsetx + int(14 * vl), offsety + int(6 * vl), int(72 * vl), int(80 * vl))
+
+
             for event in pg.event.get():
                     if event.type == pg.QUIT:
                         done = True
                     if event.type == pg.MOUSEBUTTONDOWN:
-                        if width / 2 - (reload_size[0] + play_size[0] + 20) / 2 <= pg.mouse.get_pos()[0] <= width / 2 - play_size[0] / 2 - 20 + reload_size[0] / 2 and 450 <= pg.mouse.get_pos()[1] <= 450 + reload_size[1]:
+                        if offsetx + length / 2 - (reload_size[0] + play_size[0] + int(4 * vl)) / 2 <= pg.mouse.get_pos()[0] <= offsetx + length / 2 - play_size[0] / 2 - int(4 * vl) + reload_size[0] / 2 and offsety + int(90 * vl) <= pg.mouse.get_pos()[1] <= offsety + int(90 * vl) + reload_size[1]:
                             addr_lst = []
                             server_list = []
                             activated_list = []
-                        elif 70 <= pg.mouse.get_pos()[0] <= 430 and 30 <= pg.mouse.get_pos()[1] <= 430:
-                            if not int((pg.mouse.get_pos()[1] - 30) / 25) > len(server_list) - 1:
+                        elif offsetx + int(14 * vl) <= pg.mouse.get_pos()[0] <= offsetx + int(86 * vl) and offsety + int(6 * vl) <= pg.mouse.get_pos()[1] <= offsety + int(86 * vl):
+                            if not int((pg.mouse.get_pos()[1] - int(6 * vl)) / 25 + offsety) > len(server_list) - 1:
                                 if True in activated_list:
                                     activated_list[activated_list.index(True)] = False
-                                activated_list[int((pg.mouse.get_pos()[1] - 30) / 25)] = True
+                                activated_list[int((pg.mouse.get_pos()[1] - int(6 * vl)) / 25 + offsety)] = True
 
-                        elif width / 2 - play_size[0] / 2 + reload_size[0] / 2 + 10 <= pg.mouse.get_pos()[0] <= width / 2 + (reload_size[0] + play_size[0] + 20) / 2 and 450 <= pg.mouse.get_pos()[1] <= 450 + reload_size[1] and True in activated_list:
+                        elif offsetx + length / 2 - play_size[0] / 2 + reload_size[0] / 2 + int(2 * vl) <= pg.mouse.get_pos()[0] <= offsetx + length / 2 + (reload_size[0] + play_size[0] + int(4 * vl)) / 2 and offsety + int(90 * vl) <= pg.mouse.get_pos()[1] <= offsety + int(90 * vl) + reload_size[1] and True in activated_list:
                             return ipv4_host
 
             if thread_pool[0] < 1:
@@ -94,19 +105,19 @@ def server_finder():
 
             for index, server in enumerate(server_list):
                 server_text = font.render(server, True, (Color.green, Color.blue)[index % 2])
-                server_rect = Rect(75, 35 + index * 25, 350, 25)
+                server_rect = Rect(offsetx + int(15 * vl), offsety + int(7 * vl) + index * int(5 * vl), int(70 * vl), int(5 * vl))
                 if activated_list[index]:
                     pg.draw.rect(screen, (Color.blue, Color.green)[index % 2], server_rect)
                 else:
-                    pg.draw.rect(screen, (Color.blue, Color.green)[index % 2], server_rect, 3)
-                screen.blit(server_text, (server_rect.x + 5, server_rect.y + 5))
+                    pg.draw.rect(screen, (Color.blue, Color.green)[index % 2], server_rect, int(1 + 0.6 * vl))
+                screen.blit(server_text, (server_rect.x + int(1 + 1 * vl), server_rect.y + int(1 + 1 * vl)))
 
             if True in activated_list:
                 play = font.render('PLAY!', True, Color.blue, Color.green)
 
-            pg.draw.rect(screen, Color.white, list_box, 5)
-            screen.blit(reload, (width / 2 - (reload_size[0] + play_size[0] + 20) / 2, 450))
-            screen.blit(play, (width / 2 - play_size[0] / 2 + reload_size[0] / 2 + 10, 450))
+            pg.draw.rect(screen, Color.white, list_box, int(1 + 1 * vl))
+            screen.blit(reload, (offsetx + length / 2 - (reload_size[0] + play_size[0] + int(4 * vl)) / 2, offsety + int(90 * vl)))
+            screen.blit(play, (offsetx + length / 2 - play_size[0] / 2 + reload_size[0] / 2 + int(2 * vl), offsety + int(90 * vl)))
             pg.display.update()
         
         return 'QUIT'
@@ -124,24 +135,30 @@ if __name__ == '__main__':
         snake_color_lst = []
         pg.init()
         done = False
-        size = 500, 500
-        width, height = size
-        screen = pg.display.set_mode((size))
+        screen = pg.display.set_mode((500, 500), pg.RESIZABLE)
         clock = pg.time.Clock()
-        font = pg.font.Font('freesansbold.ttf', 32)
         ready = False
         snake_color = Color.white
-
-        lobby = font.render(' Lobby ', True, Color.green, Color.blue)
-        lobby_size = lobby.get_rect().size
-
-        ready_txt = font.render(' Ready ', True, Color.blue, Color.green)
-        ready_size = ready_txt.get_rect().size
-
-
-        rect = Rect(width / 2 - 400 / 2, 90, 400, 300)
         s.sendall(b'Hello')
         while not done:
+            size = screen.get_size()
+            if size[0] < size[1]:
+                length = size[0]
+            else:
+                length = size[1]
+            vl = length / 100
+            offsetx = int((size[0] - length) / 2)
+            offsety = int((size[1] - length) / 2)
+
+            font = pg.font.Font('freesansbold.ttf', int(6.4 * vl))
+
+            lobby = font.render(' Lobby ', True, Color.green, Color.blue)
+            lobby_size = lobby.get_rect().size
+
+            ready_txt = font.render(' Ready ', True, Color.blue, Color.green)
+            ready_size = ready_txt.get_rect().size
+
+            rect = Rect(offsetx + length / 2 - int(80 * vl) / 2, offsety + int(18 * vl), int(80 * vl), int(60 * vl))
             data = s.recv(4096)
             if data:
                 data_buffer += data
@@ -164,25 +181,25 @@ if __name__ == '__main__':
 
             screen.fill(Color.black)
             snk_num = len(snake_color_lst)
-            screen.blit(lobby, (width / 2 - lobby_size[0] / 2, 10))
-            screen.blit(ready_txt, (width / 2 - ready_size[0] / 2, 400))
+            screen.blit(lobby, (offsetx + length / 2 - lobby_size[0] / 2, offsety + int(2 * vl)))
+            screen.blit(ready_txt, (offsetx + length / 2 - ready_size[0] / 2, offsety + int(80 * vl)))
 
-            snk = Rect(width / 2 - (snk_num * 25 + (snk_num - 1) * 25) / 2, 250, 25, 140)
+            snk = Rect(offsetx + length / 2 - (snk_num * int(5 * vl) + (snk_num - 1) * int(5 * vl)) / 2, offsety + int(50 * vl), int(5 * vl), int(28 * vl))
 
             ready_snake_num = 0
            
             for i in range(snk_num):
                 if (ready_snakes << i & 0xff) >> 7 == 1:
-                    snk.y = 175
-                    snk.size = (snk.size[0], 215)
+                    snk.y = offsety + int(35 * vl)
+                    snk.size = (snk.size[0], int(43 * vl))
                     ready_snake_num += 1
                 else:
-                    snk.y = 250
-                    snk.size = (snk.size[0], 140)
+                    snk.y = offsety + int(50 * vl)
+                    snk.size = (snk.size[0], int(28 * vl))
                     
                 pg.draw.rect(screen, snake_color_lst[i], snk)
                 
-                snk.x += 50
+                snk.x += int(10 * vl)
 
             # Draw outline
             pg.draw.rect(screen, snake_color, rect, 1)
@@ -191,7 +208,7 @@ if __name__ == '__main__':
                 if event.type == pg.QUIT:
                     done = True
                 if event.type == pg.MOUSEBUTTONDOWN:
-                    if width / 2 - ready_size[0] / 2 <= pg.mouse.get_pos()[0] <= width / 2 + ready_size[0] / 2 and 400 <= pg.mouse.get_pos()[1] <= 400 + ready_size[1]:
+                    if offsetx + length / 2 - ready_size[0] / 2 <= pg.mouse.get_pos()[0] <= offsetx + length / 2 + ready_size[0] / 2 and offsety + int(80 * vl) <= pg.mouse.get_pos()[1] <= offsety + int(80 * vl) + ready_size[1]:
                         ready = True
                         ready_txt = font.render(' Ready ', True, Color.green, Color.blue)
 

@@ -39,13 +39,13 @@ class Snake:
         self.color = color
         self.attack = False
         self.degree = 0
-        self.offset = []
+        self.offset = [0, 0]
         self.animation_tick = 0
         self.north_key = key[0]
         self.east_key = key[1]
         self.south_key = key[2]
         self.west_key = key[3]
-        self.pos_lst = [(start_pos[0], start_pos[1], size, size)]
+        self.pos_lst = [(start_pos[0], start_pos[1], size, size),]
         self.lst_index = 0
         self.head = Rect(start_pos[0], start_pos[1], size, size)
         self.boost = 1
@@ -54,39 +54,48 @@ class Snake:
         self.fangs = (0, 0, 0, 0)
 
 def winscreen(input_color):
-    size = 500, 500
-    width, height = size
-    screen = pg.display.set_mode((size))
+    screen = pg.display.set_mode((500, 500), pg.RESIZABLE)
     clock = pg.time.Clock()
-    font = pg.font.Font('freesansbold.ttf', 32)
     done = False
-    
-    text = font.render(f' {player_color.translate[input_color].upper()} WINS! ', True, input_color, Color.white)
-    text_size = text.get_rect().size
-    
-    replay = font.render(' Play Again? ', True, input_color, Color.white)
-    replay_size = replay.get_rect().size
-    
-    quit = font.render(' Quit? ', True, input_color, Color.white)
-    quit_size = quit.get_rect().size
+
     
     while not done:
-        screen.blit(text, (width / 2 - text_size[0] / 2, 325))
-        screen.blit(replay, (width / 2 - replay_size[0] / 2, 375))
-        screen.blit(quit, (width / 2 - quit_size[0] / 2, 425))
+        size = screen.get_size()
+        if size[0] < size[1]:
+            length = size[0]
+        else:
+            length = size[1]
+        vl = length / 100
+        offsetx = int((size[0] - length) / 2)
+        offsety = int((size[1] - length) / 2)
+
+        font = pg.font.Font('freesansbold.ttf', int(6.4 * vl))
+
+        text = font.render(f' {player_color.translate[input_color].upper()} WINS! ', True, input_color, Color.white)
+        text_size = text.get_rect().size
+    
+        replay = font.render(' Play Again? ', True, input_color, Color.white)
+        replay_size = replay.get_rect().size
+    
+        quit = font.render(' Quit? ', True, input_color, Color.white)
+        quit_size = quit.get_rect().size
+
+        screen.blit(text, (offsetx + length / 2 - text_size[0] / 2, offsety + int(65 * vl)))
+        screen.blit(replay, (offsetx + length / 2 - replay_size[0] / 2, offsety + int(75 * vl)))
+        screen.blit(quit, (offsetx + length / 2 - quit_size[0] / 2, offsety + int(85 * vl)))
         win_pic = pg.image.load('snakewin.png')
-        win_pic = pg.transform.scale(win_pic, (230, 215))
+        win_pic = pg.transform.scale(win_pic, (int(46 * vl), int(43 * vl)))
         win_rect = win_pic.get_rect().size
-        pg.draw.rect(screen, input_color, (155, 85, win_rect[0], win_rect[1]))
-        screen.blit(win_pic, (155, 85))
+        pg.draw.rect(screen, input_color, (offsetx + int(31 * vl), offsety + int(17 * vl), win_rect[0], win_rect[1]))
+        screen.blit(win_pic, (offsetx + int(31 * vl), offsety + int(17 * vl)))
   
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 done = True
             if event.type == pg.MOUSEBUTTONDOWN:
-                if width / 2 - replay_size[0] / 2 <= pg.mouse.get_pos()[0] <= width / 2 + replay_size[0] / 2 and 375 <= pg.mouse.get_pos()[1] <= 375 + replay_size[1]:
+                if offsetx + length / 2 - replay_size[0] / 2 <= pg.mouse.get_pos()[0] <= offsetx + length / 2 + replay_size[0] / 2 and offsety + int(75 * vl) <= pg.mouse.get_pos()[1] <= offsety + int(75 * vl) + replay_size[1]:
                     return True
-                elif 205.5 <= pg.mouse.get_pos()[0] <= 294.5 and 425 <= pg.mouse.get_pos()[1] <= 425 + quit_size[1]:
+                elif offsetx + int(41 * vl) <= pg.mouse.get_pos()[0] <= offsetx + int(59 * vl) and offsety + int(85 * vl) <= pg.mouse.get_pos()[1] <= offsety + int(85 * vl) + quit_size[1]:
                     os.system('python titlescreen.py')
             
         pg.display.flip()
@@ -104,10 +113,11 @@ def main():
     snakes = [green_snake, blue_snake]
 
     
-    total_width, total_height = 700, 700
+    total_length, total_height = 700, 700
     total_screen = pg.Surface((700, 700))
-    width, height = 500, 500
+    length, height = 500, 500
     screen = pg.Surface((500, 500))
+    snake_window = pg.display.set_mode((400, 400), pg.RESIZABLE)
     rand1 = random.randint(100, 400), random.randint(100, 400)
     rand2 = random.randint(100, 400), random.randint(100, 400)
     clock = pg.time.Clock()
@@ -153,7 +163,6 @@ def main():
                 if snake.attack:
                     snake.fangs = Rect(snake.head.x + 1, snake.head.y + snake.size - 1, snake.size - 2, 20)
 
-                
 
 
                 snake.pos_lst.insert(0, snake.head[:])
@@ -195,7 +204,7 @@ def main():
                         else:
                             snake.attack = True
 
-        for snake in snakes:  
+        for snake in snakes:
             if snake.head.x % 20 == 0 and snake.head.y % 20 == 0:
                 snake.direction = snake.next_direction
 
@@ -251,9 +260,9 @@ def main():
             # Check if the player is out of bounds
             if (
                 snake.face.x < -1
-                or snake.face.x > width + 1
+                or snake.face.x > length + 1
                 or snake.face.y < -1
-                or snake.face.y > width + 1
+                or snake.face.y > length + 1
             ):
                 snakes.remove(snake)
 
@@ -344,7 +353,9 @@ def main():
                     snake.animation_tick += 1
             
             for rect in husk:
-                pg.draw.rect(screen, Color.purple, Rect(rect))    
+                pg.draw.rect(screen, Color.purple, Rect(rect))
+            
+            print(husk)
                 
 
             for i in range(625):
@@ -370,17 +381,22 @@ def main():
             return snakes[0].color
 
         
-        
+
         total_screen.blit(screen, (100, 100))
-
-        snake_num = [snake.color for snake in snakes].index(Color.green)
-
-
+        snake_num = [snake.color for snake in snakes].index(Color.blue)
+        size = snake_window.get_size()
+        if size[0] < size[1]:
+            window_length = size[0]
+        else:
+            window_length = size[1]
+        offsetx = size[0] / 2 - window_length / 2
+        offsety = size[1] / 2 - window_length / 2
         sub = total_screen.subsurface((snakes[snake_num].head.x, snakes[snake_num].head.y, 200, 200)).copy()
-        sub = pg.transform.scale(sub, (400, 400))
-        snake_window = pg.display.set_mode((400, 400))
+        sub = pg.transform.scale(sub, (window_length, window_length))
         pg.display.set_caption(player_color.translate[snakes[snake_num].color])
-        snake_window.blit(sub, (0, 0))
+        snake_window.blit(sub, (offsetx, offsety))
+
+
 
 
         pg.display.flip()

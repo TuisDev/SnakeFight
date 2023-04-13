@@ -9,13 +9,16 @@ A game where snakes fight to the death
   - Fix buggyness asociated with finding a server
   - Catch all errors
   - add quit button
+  - Send people to servergame/clientgame
 - main game
   - Share required drawing variables between server and client
-    - Create socket
     - Create sending protocol
+    - Create socket
     - Send Data
-
-  - Send people to servergame/clientgame
+  - Make it so that the game still runs while the display is resizing
+    - Make main game code inside one thread, make sure that the clock.tick is in there
+    - Make sending code inside another thread
+    - Leave the resizing code/ displaying code outside of a thread.
 - ...
 - Tutorial
   - add a button on the main menu
@@ -40,8 +43,10 @@ A game where snakes fight to the death
     - Make into executable
     - PROFIT
 
+# Acknowledgements
 
-Although Jacob and Wes did all the coding, they would like to formally thank 
-Mclean Muir who used his great intellect to inspire them to make the game playable.
-Wes and Jacob would like to ensure that everyone seeing this game
-knows that Mclean has done 90% of all the work on this project /s
+Although Jacob and Wes did all the coding, they would like to formally thank Mclean Muir who used his great intellect to inspire them to make the game playable. Wes and Jacob would like to ensure that everyone seeing this game knows that Mclean has done 90% of all the work on this project.
+
+# Disclaimer
+
+We are not responsible for any injuries or death associated with this game. Please do not sue.

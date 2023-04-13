@@ -49,14 +49,15 @@
 
 import pygame as pg
 from pygame.locals import *
-from servergame import Color, player_color
+from servergame import Color, player_color, Snake
 import socket
 import struct
-from servergame import Color, player_color
+
 
 ## Initial input variables
 host = '127.0.0.1'
 color = Color.green
+color_lst = [player_color.green, player_color.blue, player_color.red, player_color.yellow]
 
 # LOCAL VARIABLES #
 
@@ -79,25 +80,87 @@ fang_bite = [
 
 # requried variabels to be sent
 
-def main(host, color):
-    snakes = None
-    husk = None
-    map_file = None
+def main(host, color, color_lst):
+    snakes = []
+#.attack (1 bit, fixed)
+#.animation_tick (4 bit; fixed; +1 for transit) ## NOPE
+#.degree (2 bit; fixed; / 90 for transit)
+#.offset (2 bit; fixed; / size for transit) ## NOPE
+#.size (5 bit; fixed for now)
+#.pos_list ()
+#.head.x
+#.head.y
+    map_info = None
+
+
+
+
+
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+
         s.connect((host, port))
         pg.init()
         done = False
+        data_buffer = b''
+        husk = []
+        husk_len = 10
         screen = pg.display.set_mode((400, 400))
-
+        with open('map.txt', 'rb') as map_file:
+            map_info = map_file.readline()
 
         while not done:
-            data += s.recv(4096)
-            if len(data) >= 2:
-                pass
+            while True:
+                data = s.recv(4096)
+                if data:
+                    data_buffer += data
 
-            with open('map.txt', 'rb') as map_file:
-                    map_info = map_file.readline()
+                if len(data_buffer) >= 1:
+                    map_len = struct.unpack('>B', data_buffer[:1])[0]
+                if len(data_buffer) >= map_len + 1:
+                    map_info = data_buffer[1:map_len+1]
+                if len(data_buffer) >= map_len + 2:
+                    snake_num = struct.unpack('>B', data_buffer[map_len + 1: map_len + 2])[0]
+                if len(data_buffer) >= map_len + 2 + 7 * snake_num:
+                    pos_lst_len = []
+                    for i, snake_color in enumerate(color_lst):
+                        snake_info = struct.unpack('>B', data_buffer[map_len + 2 + 7 * i: map_len + 3 + 7 * i])[0]
+                        size = (snake_info >> 2) & 0b11111
+                        snakes.append(Snake('',(0, 0, 0, 0), snake_color, size, (0, 0)))
+                        snakes[i].attack = snake_info >> 7
+                        snakes[i].degree = (snake_info & 0b11) * 90
+
+                        headx = struct.unpack('>h', data_buffer[map_len + 3 + 7 * i: map_len + 5 + 7 * i])[0]
+                        heady = struct.unpack('>h', data_buffer[map_len + 5 + 7 * i: map_len + 7 + 7 * i])[0]
+                        snakes[i].head = Rect(headx, heady, size, size)
+                        
+                        pos_lst_len.append(struct.unpack('>h', data_buffer[map_len + 7 + 7 * i: map_len + 9 + 7 * i])[0])
+                    
+                    pos_lst_total_len = 0
+                    for length in  pos_lst_len:
+                        pos_lst_total_len += length
+
+                
+                if len(data_buffer) >= map_len + 2 + 7 * snake_num + pos_lst_total_len:
+                    for j, snake in enumerate(snakes):
+                        pos_lst = []
+                        print(pos_lst_len[j] / 4)
+                        for i in range(int(pos_lst_len[j] / 4)):
+                            x = struct.unpack('>h', data_buffer[map_len + 9 + 4 * i + pos_lst_len[j]: map_len + 11 + 4 * i + pos_lst_len[j]])[0]
+                            y = struct.unpack('>h', data_buffer[map_len + 11 + 4 * i + pos_lst_len[j]: map_len + 13 + 4 * i + pos_lst_len[j]])[0]
+                            pos_lst.append([x, y, snake.size, snake.size])
+                        snake.pos_lst = pos_lst
+                if len(data_buffer) >= map_len + 4 + 7 * snake_num + pos_lst_total_len:
+                    husk_len = struct.unpack('>h', data_buffer[1 + map_len: 1 + map_len + 2])[0]
+                if len(data_buffer) >= map_len + 4 + 7 * snake_num + pos_lst_total_len + husk_len:
+                    husk = []
+                    for i in range(int(husk_len / 4)):
+                        x = struct.unpack('>h', data_buffer[map_len + 3 + 7 * snake_num + i*4 + pos_lst_total_len: map_len + 5 + 7 * snake_num + i*4])[0] * 2
+                        y = struct.unpack('>h', data_buffer[map_len + 5 + 7 * snake_num + i*4 + pos_lst_total_len: map_len + 7 + 7 * snake_num + i*4])[0] * 2
+                        husk.append([x, y, snakes[0].size, snakes[0].size])
+                    data_buffer = data_buffer[husk_len + 3 + 7 * snake_num + pos_lst_total_len + map_len:]
+
+                
 
 
             ## Drawing Code ##
@@ -153,7 +216,7 @@ def main(host, color):
                     
             total_screen.blit(screen, (100, 100))
 
-            snake_num = [snake.color for snake in snakes].index(Color.green)
+            snake_num = [snake.color for snake in snakes].index(color)
 
 
             sub = total_screen.subsurface((snakes[snake_num].head.x, snakes[snake_num].head.y, 200, 200)).copy()
@@ -163,4 +226,4 @@ def main(host, color):
             snake_window.blit(sub, (0, 0))
 
 if __name__ == '__main__':
-    main(host, color)
+    main(host, color, color_lst)
